@@ -1,0 +1,18 @@
+[Unit]
+Description=Camp Race (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/camp-race
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+# Increase if needed
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
