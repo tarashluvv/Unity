@@ -53,8 +53,8 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
       <div className="rounded-[1.75rem] border border-[#e7e1d8] bg-white p-5 shadow-sm sm:p-7">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#1d6f42]">Шеринг</div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-[#241814]">Медиа-отчёт для чата БК</h2>
+            <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#1d6f42]">Поделиться</div>
+            <h2 className="text-2xl font-extrabold tracking-tight text-[#241814]">Готовая сводка для чата</h2>
             <p className="mt-1 text-sm text-[#6b625c]">Готовая карточка (PNG) и текстовая сводка: новички, которых привлекли кампусы</p>
           </div>
           <div className="flex flex-wrap gap-2">
