@@ -78,12 +78,6 @@ export default function Home() {
 
         <div className="relative mx-auto grid w-full max-w-[90%] items-center gap-8 px-4 pb-10 pt-4 sm:px-3 sm:pb-12 sm:pt-8 lg:grid-cols-[1.08fr_.92fr] lg:gap-8 lg:pb-16 lg:pt-10 lg:px-4">
           <div className="relative z-10 animate-fade-up">
-            <div className="mb-4">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#ffa400]/25 bg-[#fff1d6] px-3.5 py-1.5 text-xs font-bold text-[#8a5a00]">
-                <span>🏕</span> Приз — Кэмп победителю
-              </span>
-            </div>
-
             <h1 className="max-w-3xl text-[2.1rem] font-extrabold leading-[1.02] tracking-tight text-[#320066] sm:text-5xl lg:text-[4.1rem]">
               Путь к Кэмпу:
               <span className="mt-1 block text-[#4c008e]">гонка регионов<br />по привлечению<br /><span className="text-[#ffa400]">новых Активистов</span></span>
