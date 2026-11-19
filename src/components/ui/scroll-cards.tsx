@@ -16,7 +16,7 @@ function Card({ title, description, src, color, textColor }: iCardItem) {
   return (
     <div className="sticky top-0 flex h-screen items-center justify-center px-4">
       <div
-        className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-8 py-12 shadow-md md:h-[400px] md:max-w-[600px] md:px-12"
+        className="relative flex h-[90%] w-full flex-col items-center justify-center overflow-hidden px-8 py-12 rounded-2xl shadow-md md:h-[400px] md:max-w-[600px] md:px-12"
         style={{ backgroundColor: color }}
       >
         <div className="absolute inset-0 z-0">
