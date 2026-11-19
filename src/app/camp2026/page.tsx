@@ -76,7 +76,7 @@ export default function Home() {
         <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-[#ffa400]/10 blur-3xl" />
         <div className="pointer-events-none absolute right-[-8%] top-10 h-[26rem] w-[26rem] rounded-full bg-[#4c008e]/10 blur-3xl" />
 
-        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-8 px-4 pb-10 pt-4 sm:px-3 sm:pb-12 sm:pt-8 lg:grid-cols-[1.08fr_.92fr] lg:gap-8 lg:pb-16 lg:pt-10 lg:px-4">
+        <div className="relative mx-auto grid w-full max-w-[90%] items-center gap-8 px-4 pb-10 pt-4 sm:px-3 sm:pb-12 sm:pt-8 lg:grid-cols-[1.08fr_.92fr] lg:gap-8 lg:pb-16 lg:pt-10 lg:px-4">
           <div className="relative z-10 animate-fade-up">
             <div className="mb-4">
               <span className="inline-flex items-center gap-2 rounded-full border border-[#ffa400]/25 bg-[#fff1d6] px-3.5 py-1.5 text-xs font-bold text-[#8a5a00]">
