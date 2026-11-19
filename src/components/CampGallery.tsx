@@ -163,7 +163,7 @@ export function CampGallery() {
 
       {/* Desktop: CurvedCarousel (scroll-driven) — mounted only on md+ */}
       {isDesktop && <div className="hidden md:block">
-        <div className="mx-auto max-w-7xl px-6 pt-10 lg:px-8">
+        <div className="mx-auto max-w-7xl px-6 pt-10 sm:px-3 lg:px-4">
           <h2 className="text-3xl font-extrabold text-[#4c008e] lg:text-6xl">Моменты из кэмпов</h2>
           <p className="mt-2 mb-8 max-w-2xl text-base text-[#4c008e]/80">Прокручивайте страницу, чтобы листать галерею.</p>
         </div>

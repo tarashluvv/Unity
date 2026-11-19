@@ -20,7 +20,7 @@ export function SiteHeader({ base = '/camp2026' }: { base?: string }) {
 
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? 'border-b border-[#e9e0f2] bg-white/90 backdrop-blur-xl shadow-sm' : 'border-b border-transparent bg-white/70 backdrop-blur-md sm:bg-white/40'}`}>
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3 lg:px-8">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-3 sm:py-3 lg:px-4">
         <a href={base} className="group flex min-w-0 items-center" aria-label="На главную">
           <img src="/images/logo.svg" alt="Жаңа адамдар. Unity" className="h-9 w-auto shrink-0 transition-transform duration-300 group-hover:scale-[1.02] sm:h-11" />
         </a>

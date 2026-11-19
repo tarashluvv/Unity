@@ -49,7 +49,7 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
   }
 
   return (
-    <section id="share" className="section-wrap mx-auto w-full max-w-6xl px-4 sm:px-6">
+    <section id="share" className="section-wrap mx-auto w-full max-w-6xl px-4 sm:px-3">
       <div className="rounded-[1.75rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-7">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

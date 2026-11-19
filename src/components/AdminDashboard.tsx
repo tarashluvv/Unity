@@ -150,7 +150,7 @@ export default function AdminDashboard() {
     <main className="relative min-h-screen bg-[#faf7fd] pb-20">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-[#320066] via-[#4c008e]/85 to-transparent" />
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#320066]/85 backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-3">
           <div className="flex items-center gap-3">
             <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#ffa400] text-sm font-extrabold text-white shadow">A</div>
             <div className="min-w-0">
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="relative mx-auto mt-6 w-full max-w-6xl space-y-6 px-4 sm:px-6">
+      <div className="relative mx-auto mt-6 w-full max-w-6xl space-y-6 px-4 sm:px-3">
         <section className="overflow-hidden rounded-[1.5rem] border border-[#e9e0f2] bg-white/95 p-5 shadow-sm backdrop-blur sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
