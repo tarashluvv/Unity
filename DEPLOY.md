@@ -63,8 +63,22 @@ npm run build
 ```
 Быстрая проверка (временно): `PORT=3000 npm start` → сайт должен открыться на `http://89.126.192.32:3000` (если порт открыт). Остановите `Ctrl+C`.
 
-## 5. systemd-сервис
-В репозитории есть готовый unit: `deploy/camp-race.service`.
+## 5. Секреты админки (только на сервере!)
+Пароль админки **не хранится в коде и не попадает в GitHub**. Он читается из переменных окружения.
+Создайте файл с правами только для root:
+```bash
+umask 077
+cat >/etc/camp-race.env <<'EOF'
+ADMIN_PASSWORD=ваш_надёжный_пароль
+AUTH_SECRET=случайная_строка_64_символа
+EOF
+chmod 600 /etc/camp-race.env
+```
+Пример генерации `AUTH_SECRET`: `openssl rand -hex 32`.
+После изменения пароля перезапустите сервис: `systemctl restart camp-race`.
+
+## 6. systemd-сервис
+В репозитории есть готовый unit: `deploy/camp-race.service` (подключает `/etc/camp-race.env`).
 ```bash
 cp /var/www/camp-race/deploy/camp-race.service /etc/systemd/system/camp-race.service
 # при необходимости отредактируйте ExecStart (путь к npm: `which npm`)
@@ -75,7 +89,7 @@ journalctl -u camp-race -f
 ```
 Приложение будет слушать `127.0.0.1:3000`.
 
-## 6. Nginx (reverse proxy)
+## 7. Nginx (reverse proxy)
 Готовый конфиг: `deploy/nginx-unitymini.app.conf`.
 ```bash
 cp /var/www/camp-race/deploy/nginx-unitymini.app.conf /etc/nginx/sites-available/unitymini.app
@@ -87,14 +101,14 @@ systemctl reload nginx
 ```
 После этого `http://unitymini.app` должен проксироваться на приложение (когда DNS указывает на сервер).
 
-## 7. HTTPS (Let’s Encrypt)
+## 8. HTTPS (Let’s Encrypt)
 ```bash
 apt install -y certbot python3-certbot-nginx
 certbot --nginx -d unitymini.app -d www.unitymini.app
 ```
 Certbot автоматически настроит SSL в Nginx и редирект на HTTPS. Проверка автообновления: `certbot renew --dry-run`.
 
-## 8. Обновление приложения
+## 9. Обновление приложения
 ```bash
 cd /var/www/camp-race
 git pull
@@ -106,6 +120,7 @@ systemctl status camp-race --no-pager
 
 ## Примечания
 - В проекте включены `cacheComponents`/partial prefetching — production-запуск через `next start` (Node-сервер) обязателен.
-- Состояние гонки хранится в `localStorage` браузера (`camp-race-state-v5-regions`, MVP без бэкенда), админка `/camp2026/admin` проверяет пароль на клиенте (константа `ADMIN_PASSWORD` в `src/app/camp2026/admin/page.tsx`).
+- Состояние гонки хранится в `localStorage` браузера (`camp-race-state-v5-regions`, MVP без бэкенда).
+- Доступ к `/camp2026/admin` проверяется на сервере: пароль и секрет берутся из `/etc/camp-race.env`, в браузер попадает только httpOnly-cookie. Если `AUTH_SECRET` не задан — вход в админку невозможен (это защита от работы без секретов).
 - Если `ExecStart=/usr/bin/npm` не подходит, замените на фактический путь из `which npm`.
 - Рекомендуется позже создать отдельного пользователя для сервиса и ограничить права вместо запуска от root.

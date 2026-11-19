@@ -8,6 +8,8 @@ User=root
 WorkingDirectory=/var/www/camp-race
 Environment=NODE_ENV=production
 Environment=PORT=3000
+# Секреты хранятся только на сервере, не в репозитории
+EnvironmentFile=/etc/camp-race.env
 ExecStart=/usr/bin/npm start
 Restart=always
 RestartSec=5
