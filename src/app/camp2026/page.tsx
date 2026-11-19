@@ -94,7 +94,7 @@ export default function Home() {
                 Смотреть рейтинг <span className="transition group-hover:translate-x-0.5">→</span>
               </a>
               <a href="#camp" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#d9cde8] bg-white px-6 py-3.5 text-sm font-bold text-[#4c008e] shadow-sm transition hover:bg-[#faf7fd] sm:w-auto">
-                Фото из кэмпа
+                Фото из кэмпов
               </a>
               <div className="flex w-full items-center justify-center gap-2 rounded-full border border-[#e9e0f2] bg-[#faf7fd] px-4 py-2.5 text-sm text-[#5f5768] sm:w-auto sm:justify-start">
                 <span>До 22 декабря 2026:</span>
@@ -103,12 +103,12 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[520px] lg:max-w-none">
+          <div className="relative mx-auto w-full max-w-[600px] lg:max-w-none">
             <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-tr from-[#ffa400]/15 via-transparent to-[#4c008e]/10 blur-2xl sm:-inset-4" />
             <div className="relative sm:animate-float">
               <div className="relative overflow-hidden rounded-[1.5rem] border border-[#e9e0f2] bg-white p-1.5 shadow-xl shadow-[#4c008e]/10 sm:rounded-[2rem] sm:p-2">
                 <div className="relative aspect-[16/10] overflow-hidden rounded-[1.1rem] sm:aspect-[5/4] sm:rounded-[1.5rem]">
-                  <img src="/images/camp.webp" alt="Кэмп Жаңа Адамдар" className="h-full w-full scale-[1.02] object-cover" />
+                  <img src="/images/camp.jpg" alt="Кэмп Жаңа Адамдар" className="h-full w-full scale-[1.02] object-cover" />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#320066]/30 via-transparent to-[#ffa400]/10" />
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#320066]/55 to-transparent" />
                 </div>
