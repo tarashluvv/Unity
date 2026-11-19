@@ -1,8 +1,8 @@
 import UnityHero from '@/components/UnityHero'
 
 export const metadata = {
-  title: 'Жаңа адамдар',
-  description: 'Команда Жаңа адамдар',
+  title: 'Unity',
+  description: 'Команда Unity Жаңа адамдар',
   icons: {
     icon: '/images/unity.svg',
     shortcut: '/images/unity.svg',
