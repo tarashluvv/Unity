@@ -80,13 +80,13 @@ export default function Home() {
           <div className="relative z-10 animate-fade-up">
             <div className="mb-4">
               <span className="inline-flex items-center gap-2 rounded-full border border-[#ffa400]/25 bg-[#fff1d6] px-3.5 py-1.5 text-xs font-bold text-[#8a5a00]">
-                <span>🏕</span> Приз — кэмп победителю
+                <span>🏕</span> Приз — Кэмп победителю
               </span>
             </div>
 
             <h1 className="max-w-3xl text-[2.1rem] font-extrabold leading-[1.02] tracking-tight text-[#320066] sm:text-5xl lg:text-[4.1rem]">
               Путь к Кэмпу:
-              <span className="mt-1 block text-[#4c008e]">гонка регионов<br />по привлечению<br /><span className="text-[#ffa400]">новых активистов</span></span>
+              <span className="mt-1 block text-[#4c008e]">гонка регионов<br />по привлечению<br /><span className="text-[#ffa400]">новых Активистов</span></span>
             </h1>
 
             <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
@@ -94,7 +94,7 @@ export default function Home() {
                 Смотреть рейтинг <span className="transition group-hover:translate-x-0.5">→</span>
               </a>
               <a href="#camp" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#d9cde8] bg-white px-6 py-3.5 text-sm font-bold text-[#4c008e] shadow-sm transition hover:bg-[#faf7fd] sm:w-auto">
-                Фото из кэмпов
+                Фото из Кэмпов
               </a>
               <div className="flex w-full items-center justify-center gap-2 rounded-full border border-[#e9e0f2] bg-[#faf7fd] px-4 py-2.5 text-sm text-[#5f5768] sm:w-auto sm:justify-start">
                 <span>До 22 декабря 2026:</span>

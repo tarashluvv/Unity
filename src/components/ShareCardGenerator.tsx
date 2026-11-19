@@ -37,7 +37,7 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
       `🏕 Гонка регионов — обновление (${new Date(snapshot.createdAt).toLocaleString('ru-RU')})`,
       `👥 Новеньких привлечено: ${total}`,
       `🎯 Регионов в цели: ${inGoal}/7`,
-      `🏕 Приз — кэмп победителю`,
+      `🏕 Приз — Кэмп победителю`,
       best ? `🚀 Прорыв: ${best.r.name} (+${best.s!.deltaActivists})` : '',
       '',
       'Топ-5 регионов:',
@@ -55,7 +55,7 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
           <div>
             <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">Поделиться</div>
             <h2 className="text-2xl font-extrabold tracking-tight text-[#320066]">Готовая сводка для чата</h2>
-            <p className="mt-1 text-sm text-[#6b6472]">Готовая карточка (PNG) и текстовая сводка: новички, которых привлекли кампусы</p>
+            <p className="mt-1 text-sm text-[#6b6472]">Готовая карточка (PNG) и текстовая сводка: новички, которых привлекли Кампусы</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button onClick={copyText} className="rounded-full border border-[#e9e0f2] bg-white px-4 py-2.5 text-sm font-bold text-[#4c008e] transition hover:-translate-y-0.5 hover:bg-[#f5eefb]">{copied ? '✓ Скопировано' : 'Скопировать текст'}</button>

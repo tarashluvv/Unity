@@ -7,9 +7,9 @@ import { CardsParallax, type iCardItem } from '@/components/ui/scroll-cards'
 const IMAGES = [
   {
     src: '/images/camp/opt/03-camp.webp',
-    alt: 'Моменты кэмпа',
+    alt: 'Моменты Кэмпа',
     title: 'Путь к победе',
-    caption: 'Каждый привлечённый новичок приближает регион к кэмпу.',
+    caption: 'Каждый привлечённый новичок приближает регион к Кэмпу.',
   },
   {
     src: '/images/camp/opt/01-camp.webp',
@@ -19,31 +19,31 @@ const IMAGES = [
   },
   {
     src: '/images/camp/opt/02-camp.webp',
-    alt: 'Атмосфера кэмпа',
+    alt: 'Атмосфера Кэмпа',
     title: 'Команда и атмосфера',
     caption: 'Новые знакомства и энергия команды.',
   },
   {
     src: '/images/camp/opt/04-camp.webp',
-    alt: 'Моменты кэмпа',
+    alt: 'Моменты Кэмпа',
     title: 'Движение вперёд',
     caption: 'Каждый шаг команды приближает к общей цели.',
   },
   {
     src: '/images/camp/opt/05-camp.webp',
-    alt: 'Моменты кэмпа',
+    alt: 'Моменты Кэмпа',
     title: 'Сильные вместе',
-    caption: 'Здесь рождаются связи, которые остаются после кэмпа.',
+    caption: 'Здесь рождаются связи, которые остаются после Кэмпа.',
   },
   {
     src: '/images/camp/opt/06-camp.webp',
-    alt: 'Моменты кэмпа',
+    alt: 'Моменты Кэмпа',
     title: 'Энергия регионов',
     caption: 'Разные города — одна цель и общая победа.',
   },
   {
     src: '/images/camp/opt/07-camp.webp',
-    alt: 'Моменты кэмпа',
+    alt: 'Моменты Кэмпа',
     title: 'Награда победителю',
     caption: 'Кэмп ждёт тот регион, который приведёт больше новичков.',
   },

@@ -317,8 +317,8 @@ export default function AdminDashboard() {
             <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">Шаг 3</div>
             <h2 className="mb-4 text-xl font-extrabold text-[#320066]">Предпросмотр и публикация (снепшот)</h2>
             <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              <Mini label="Было активистов" value={summary.prevActivists} />
-              <Mini label="Станет активистов" value={summary.nextActivists} accent />
+              <Mini label="Было Активистов" value={summary.prevActivists} />
+              <Mini label="Станет Активистов" value={summary.nextActivists} accent />
               <Mini label="Дельта" value={`${summary.delta >= 0 ? '+' : ''}${summary.delta}`} />
               <Mini label="Отсеяно" value={summary.rejected} warn />
               <Mini label="Не распознан регион" value={summary.unrecognized} warn={summary.unrecognized > 0} />
