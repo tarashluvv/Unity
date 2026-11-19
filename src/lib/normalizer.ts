@@ -39,6 +39,61 @@ export function normalizeName(raw: unknown): string {
   return normalizeText(raw)
 }
 
+/**
+ * Russian/Kazakh/latin spellings of the same city must be counted once and
+ * shown with one canonical label (e.g. "Түркістан" and "Туркестан"
+ * both become "Туркестан").
+ */
+const CITY_ALIASES: Record<string, string> = {
+  // capitals
+  астана: 'Астана', нурсултан: 'Астана', нусултан: 'Астана',
+  алматы: 'Алматы', алмааты: 'Алматы',
+  шымкент: 'Шымкент', чимкент: 'Шымкент',
+  // south
+  кызылорда: 'Кызылорда', кызылордагород: 'Кызылорда',
+  туркестан: 'Туркестан', тараз: 'Тараз', талас: 'Талас',
+  талдыкорган: 'Талдыкорган',
+  // north
+  костанай: 'Костанай', кокшетау: 'Кокшетау',
+  петропавловск: 'Петропавловск', жезказган: 'Жезказган',
+  // west
+  актау: 'Актау', атырау: 'Атырау', актобе: 'Актобе',
+  уральск: 'Уральск', орал: 'Уральск',
+  // east
+  караганда: 'Караганда', павлодар: 'Павлодар', семей: 'Семей',
+  устькаменогорск: 'Усть-Каменогорск', оскемен: 'Усть-Каменогорск',
+  // latin fallbacks
+  astana: 'Астана', nursultan: 'Астана', almaty: 'Алматы',
+  shymkent: 'Шымкент', kyzylorda: 'Кызылорда', turkistan: 'Туркестан',
+  taraz: 'Тараз', kostanay: 'Костанай', kokshetau: 'Кокшетау',
+  petropavlovsk: 'Петропавловск', zhezkazgan: 'Жезказган',
+  aktau: 'Актау', atyrau: 'Атырау', aktobe: 'Актобе',
+  oral: 'Уральск', karaganda: 'Караганда', pavlodar: 'Павлодар',
+  semey: 'Семей', oskemen: 'Усть-Каменогорск',
+}
+
+const cityKey = (raw: unknown) => normalizeText(raw).replace(/[\s-]/g, '')
+
+/** Canonical display name for a city, regardless of the spelling in the source file. */
+export function canonicalCity(raw: unknown): string {
+  const key = cityKey(raw)
+  if (!key) return 'Не указан'
+  const alias = CITY_ALIASES[key]
+  if (alias) return alias
+  const trimmed = String(raw ?? '').trim()
+  return trimmed || 'Не указан'
+}
+
+/** Merge a list of city labels (e.g. from old saved snapshots) into canonical ones. */
+export function canonicalCityList(cities: string[]): string[] {
+  const out: string[] = []
+  for (const c of cities) {
+    const canonical = canonicalCity(c)
+    if (!out.includes(canonical)) out.push(canonical)
+  }
+  return out
+}
+
 export function personKey(phone: string, tg: string, name: string, regionId: string): string {
   if (phone) return 'p:' + phone
   if (tg) return 't:' + tg
@@ -56,7 +111,7 @@ function eq(a: string, b: string) {
 export function resolveRegionId(regionRaw: unknown, cityRaw: unknown, regions: Region[]): { regionId: string | null; city: string } {
   const rNorm = normalizeText(regionRaw)
   const cNorm = normalizeText(cityRaw)
-  const cityLabel = String(cityRaw ?? '').trim()
+  const cityLabel = canonicalCity(cityRaw)
 
   // 1) explicit region match
   if (rNorm) {
@@ -70,7 +125,7 @@ export function resolveRegionId(regionRaw: unknown, cityRaw: unknown, regions: R
   if (cNorm) {
     for (const r of regions) {
       const cities = [r.name, ...r.cities, ...r.aliases].map(normalizeText)
-      if (cities.some((n) => n && eq(cNorm, n))) return { regionId: r.id, city: cityLabel || r.name }
+      if (cities.some((n) => n && eq(cNorm, n))) return { regionId: r.id, city: cityLabel }
     }
   }
 
@@ -78,9 +133,9 @@ export function resolveRegionId(regionRaw: unknown, cityRaw: unknown, regions: R
   if (rNorm) {
     for (const r of regions) {
       const cities = [r.name, ...r.cities, ...r.aliases].map(normalizeText)
-      if (cities.some((n) => n && eq(rNorm, n))) return { regionId: r.id, city: String(regionRaw ?? '').trim() }
+      if (cities.some((n) => n && eq(rNorm, n))) return { regionId: r.id, city: canonicalCity(regionRaw) }
     }
   }
 
-  return { regionId: null, city: cityLabel || String(regionRaw ?? '').trim() }
+  return { regionId: null, city: cityLabel === 'Не указан' ? String(regionRaw ?? '').trim() : cityLabel }
 }

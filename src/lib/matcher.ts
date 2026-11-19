@@ -1,4 +1,4 @@
-import { normalizeName, normalizePhone, normalizeText, normalizeTg, personKey, resolveRegionId } from './normalizer'
+import { canonicalCity, normalizeName, normalizePhone, normalizeText, normalizeTg, personKey, resolveRegionId } from './normalizer'
 import type { CityBreakdown, ReconcileSummary, RecordStatus, Region, RegionStats, VerifiedRecord } from './types'
 
 type Row = Record<string, unknown>
@@ -148,7 +148,7 @@ function buildCityBreakdown(records: VerifiedRecord[], regionId: string): CityBr
   const rs = records.filter((r) => r.regionId === regionId)
   const map = new Map<string, VerifiedRecord[]>()
   for (const r of rs) {
-    const c = (r.city || 'Не указан').trim() || 'Не указан'
+    const c = canonicalCity(r.city)
     if (!map.has(c)) map.set(c, [])
     map.get(c)!.push(r)
   }

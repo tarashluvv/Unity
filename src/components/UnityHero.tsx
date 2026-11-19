@@ -11,7 +11,7 @@ export default function UnityHero() {
     if (!container) return
 
     const scene = new THREE.Scene()
-    const bg = new THREE.Color('#3b2a22')
+    const bg = new THREE.Color('#4c008e')
     scene.fog = new THREE.FogExp2(bg, 0.18)
 
     const width = container.clientWidth || window.innerWidth

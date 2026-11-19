@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <main className="h-screen w-screen overflow-hidden bg-[#3b2a22]">
+    <main className="h-screen w-screen overflow-hidden bg-[#4c008e]">
       <section className="h-full w-full">
         <UnityHero />
       </section>

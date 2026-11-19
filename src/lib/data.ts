@@ -1,13 +1,16 @@
-import type { AppState, Region, Snapshot } from './types'
+import { canonicalCity, canonicalCityList } from './normalizer'
+import type { AppState, CityBreakdown, Region, Snapshot } from './types'
 
+// Each city is listed once under its canonical Russian name. Kazakh/latin
+// spellings still resolve to these via normalizeText() + CITY_ALIASES.
 export const defaultRegions: Region[] = [
   { id: 'astana', name: 'Астана', aliases: ['г. астана', 'нур-султан', 'nursultan', 'astana'], cities: ['Астана'], minThreshold: 250 },
   { id: 'almaty', name: 'Алматы', aliases: ['г. алматы', 'almaty'], cities: ['Алматы'], minThreshold: 250 },
   { id: 'shymkent', name: 'Шымкент', aliases: ['г. шымкент', 'shymkent', 'чимкент'], cities: ['Шымкент'], minThreshold: 150 },
-  { id: 'south', name: 'Юг', aliases: ['южный', 'юг регион'], cities: ['Кызылорда', 'Туркестан', 'Тараз', 'Талдыкорган', 'Кызыл-Орда', 'Түркістан', 'Қызылорда'], minThreshold: 300 },
-  { id: 'north', name: 'Север', aliases: ['северный', 'север регион'], cities: ['Костанай', 'Кокшетау', 'Петропавловск', 'Жезказган', 'Жезқазған', 'Қостанай'], minThreshold: 300 },
-  { id: 'west', name: 'Запад', aliases: ['западный', 'запад регион'], cities: ['Актау', 'Атырау', 'Актобе', 'Уральск', 'Орал', 'Уральск (Орал)', 'Ақтау', 'Ақтөбе', 'Орал'], minThreshold: 250 },
-  { id: 'east', name: 'Восток', aliases: ['восточный', 'восток регион', 'усть каменогорск'], cities: ['Караганда', 'Павлодар', 'Семей', 'Усть-Каменогорск', 'Усть Каменогорск', 'Оскемен', 'Өскемен', 'Қарағанды'], minThreshold: 250 },
+  { id: 'south', name: 'Юг', aliases: ['южный', 'юг регион'], cities: ['Кызылорда', 'Туркестан', 'Тараз', 'Талдыкорган'], minThreshold: 300 },
+  { id: 'north', name: 'Север', aliases: ['северный', 'север регион'], cities: ['Костанай', 'Кокшетау', 'Петропавловск', 'Жезказган'], minThreshold: 300 },
+  { id: 'west', name: 'Запад', aliases: ['западный', 'запад регион'], cities: ['Актау', 'Атырау', 'Актобе', 'Уральск'], minThreshold: 250 },
+  { id: 'east', name: 'Восток', aliases: ['восточный', 'восток регион', 'усть каменогорск'], cities: ['Караганда', 'Павлодар', 'Семей', 'Усть-Каменогорск'], minThreshold: 250 },
 ]
 
 const seedSnapshots: Snapshot[] = [
@@ -1320,10 +1323,41 @@ const seedSnapshots: Snapshot[] = [
 
 export function getInitialState(): AppState {
   const published = seedSnapshots[seedSnapshots.length - 1]
-  return { regions: defaultRegions, snapshots: seedSnapshots, publishedSnapshotId: published?.id || null }
+  return normalizeState({ regions: defaultRegions, snapshots: seedSnapshots, publishedSnapshotId: published?.id || null })
 }
 
 const KEY = 'camp-race-state-v5-regions'
+
+/** Merge differently spelled city labels in previously saved data (e.g. Қызылорда / Кызылорда). */
+function mergeCityBreakdown(items: CityBreakdown[] = []): CityBreakdown[] {
+  const merged = new Map<string, CityBreakdown>()
+  for (const item of items) {
+    const city = canonicalCity(item.city)
+    const prev = merged.get(city)
+    if (!prev) {
+      merged.set(city, { ...item, city })
+      continue
+    }
+    prev.fgCount += item.fgCount || 0
+    prev.appCount += item.appCount || 0
+    prev.examCount += item.examCount || 0
+    prev.activistsCount += item.activistsCount || 0
+    prev.rejectedCount += item.rejectedCount || 0
+  }
+  return [...merged.values()].sort((a, b) => b.activistsCount - a.activistsCount)
+}
+
+export function normalizeState(parsed: AppState): AppState {
+  return {
+    ...parsed,
+    regions: parsed.regions.map((r) => ({ ...r, cities: canonicalCityList(r.cities || []) })),
+    snapshots: parsed.snapshots.map((s) => ({
+      ...s,
+      stats: (s.stats || []).map((st) => ({ ...st, byCity: mergeCityBreakdown(st.byCity) })),
+      records: (s.records || []).map((rec) => ({ ...rec, city: canonicalCity(rec.city) })),
+    })),
+  }
+}
 
 export function loadState(): AppState {
   if (typeof window === 'undefined') return getInitialState()
@@ -1332,7 +1366,7 @@ export function loadState(): AppState {
     if (!raw) return getInitialState()
     const parsed = JSON.parse(raw) as AppState
     if (!parsed.regions || !Array.isArray(parsed.snapshots)) return getInitialState()
-    return parsed
+    return normalizeState(parsed)
   } catch {
     return getInitialState()
   }

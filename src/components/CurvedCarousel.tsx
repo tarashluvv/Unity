@@ -93,8 +93,8 @@ export interface CurvedCarouselProps {
   className?: string
 }
 
-/** violet · magenta · green · orange · blue · purple · teal */
-const POSTER_PALETTE = ["#6b2bd9", "#e5197e", "#17a34a", "#ff6b1a", "#2563eb", "#b62bd9", "#0d9488"]
+/** Purple and yellow palette used while images load. */
+const POSTER_PALETTE = ["#4c008e", "#6b1ba8", "#ffa400", "#ffb52e", "#320066", "#7c2bb5", "#e69400"]
 
 const inOut = gsap.parseEase("power4.inOut")
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
