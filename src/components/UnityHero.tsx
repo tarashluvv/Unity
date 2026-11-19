@@ -50,7 +50,7 @@ export default function UnityHero() {
       side: THREE.DoubleSide,
     })
     const backdrop = new THREE.Mesh(backdropGeo, backdropMat)
-    backdrop.position.z = -0.8
+    backdrop.position.z = -3
     scene.add(backdrop)
 
     const glowGeo = new THREE.RingGeometry(1.35, 2.4, 64)
@@ -61,7 +61,7 @@ export default function UnityHero() {
       side: THREE.DoubleSide,
     })
     const glow = new THREE.Mesh(glowGeo, glowMat)
-    glow.position.z = -0.5
+    glow.position.z = -2.8
     scene.add(glow)
 
     // Floating particles for depth
@@ -115,7 +115,7 @@ export default function UnityHero() {
 
         // Layered planes to give subtle thickness/depth
         const layers = 7
-        const depth = 0.12
+        const depth = 0.18
         for (let i = 0; i < layers; i++) {
           const t = i / (layers - 1)
           const z = (t - 0.5) * depth
