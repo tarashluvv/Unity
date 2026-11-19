@@ -123,6 +123,9 @@ export function CampGallery() {
 
   return (
     <section id="camp" className="relative w-full bg-white text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_10%_10%,rgba(255,164,0,0.10),transparent_40%),radial-gradient(ellipse_at_90%_20%,rgba(76,0,142,0.08),transparent_38%),linear-gradient(180deg,#ffffff_0%,#fcfaff_55%,#f5eefb_100%)]" />
+      <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-[#ffa400]/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-[-8%] top-10 h-[26rem] w-[26rem] rounded-full bg-[#4c008e]/10 blur-3xl" />
       {/* Mobile: full-viewport sticky reveal. Only the current photo and its
           immediate neighbours are mounted, keeping decoded bitmaps low. */}
       <div ref={mobileRef} className="relative md:hidden" style={{ height: `${IMAGES.length * 100}vh`, width: '100vw' }}>
