@@ -37,11 +37,10 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
         </div>
 
         <div className="space-y-5 p-5 sm:p-6">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-3">
             <Metric label="Новички" value={s?.activistsCount || 0} accent />
             <Metric label="Порог" value={region.minThreshold} />
             <Metric label="Прогресс" value={`${pct}%`} accent={pct >= 100} />
-            <Metric label="Конверсия" value={`${conv.toFixed(1)}%`} />
           </div>
 
           <div className="grid gap-5 lg:grid-cols-2">
