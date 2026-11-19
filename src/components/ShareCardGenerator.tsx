@@ -73,7 +73,6 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
                 <div>
                   <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold text-white/90">Жаңа адамдар · гонка регионов</div>
                   <h3 className="text-[2rem] font-extrabold leading-[1.05] tracking-tight">Рейтинг регионов<br /><span className="text-[#ffd27a]">по новеньким</span></h3>
-                  <div className="mt-2 text-sm font-semibold text-white/85">🏕 Приз — кэмп победителю</div>
                 </div>
                 <div className="grid gap-2 text-right">
                   <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 backdrop-blur">

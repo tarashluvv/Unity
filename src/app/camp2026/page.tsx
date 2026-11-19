@@ -137,11 +137,10 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-3">
           <div>
             <div className="text-base font-extrabold text-white">Жаңа адамдар · Гонка регионов</div>
-            <div className="mt-0.5 text-sm text-white/70">Новенькие, которых привлекли кампусы регионов. Данные обновляются.</div>
+            <div className="mt-0.5 text-sm text-white/70">Данные обновляются.</div>
           </div>
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <a href="#share" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 font-semibold text-white transition hover:bg-white/20">Отчёт для чата</a>
-            <button type="button" onClick={() => setShowConditions(true)} className="rounded-full border border-white/20 bg-white/10 px-4 py-2 font-semibold text-white transition hover:bg-white/20">Условия конкурса</button>
             <span className="rounded-full bg-[#fff1d6] px-4 py-2 text-xs font-bold text-[#ffa400] ring-1 ring-[#ffa400]/10">{regions.length} регионов участвуют в конкурсе</span>
           </div>
         </div>
