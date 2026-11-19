@@ -106,6 +106,6 @@ systemctl status camp-race --no-pager
 
 ## Примечания
 - В проекте включены `cacheComponents`/partial prefetching — production-запуск через `next start` (Node-сервер) обязателен.
-- Состояние гонки хранится в `localStorage` браузера (`camp-race-state-v5-regions`, MVP без бэкенда), админка `/camp2026/admin` использует демо-пароль `admin` на клиенте.
+- Состояние гонки хранится в `localStorage` браузера (`camp-race-state-v5-regions`, MVP без бэкенда), админка `/camp2026/admin` проверяет пароль на клиенте (константа `ADMIN_PASSWORD` в `src/app/camp2026/admin/page.tsx`).
 - Если `ExecStart=/usr/bin/npm` не подходит, замените на фактический путь из `which npm`.
 - Рекомендуется позже создать отдельного пользователя для сервиса и ограничить права вместо запуска от root.
