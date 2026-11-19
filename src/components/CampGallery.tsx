@@ -1,63 +1,57 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CurvedCarousel } from '@/components/CurvedCarousel'
 import { CardsParallax, type iCardItem } from '@/components/ui/scroll-cards'
+import { useT } from '@/lib/i18n'
 
 const IMAGES = [
   {
     src: '/images/camp/opt/03-camp.webp',
     alt: 'Моменты Кэмпа',
     title: 'Путь к победе',
-    caption: 'Каждый привлечённый новичок приближает регион к Кэмпу.',
+    caption: 'Победа начинается с личной инициативы каждого.',
   },
   {
     src: '/images/camp/opt/01-camp.webp',
     alt: 'Кэмп Жаңа адамдар',
     title: 'Кэмп Жаңа адамдар',
-    caption: 'Атмосфера, люди и общая цель.',
+    caption: 'Возможность почувствовать себя частью чего-то большего.',
   },
   {
     src: '/images/camp/opt/02-camp.webp',
     alt: 'Атмосфера Кэмпа',
     title: 'Команда и атмосфера',
-    caption: 'Новые знакомства и энергия команды.',
+    caption: 'Взаимная поддержка помогает достигать большего.',
   },
   {
     src: '/images/camp/opt/04-camp.webp',
     alt: 'Моменты Кэмпа',
     title: 'Движение вперёд',
-    caption: 'Каждый шаг команды приближает к общей цели.',
+    caption: 'Развитие начинается с действия, а не ожидания.',
   },
   {
     src: '/images/camp/opt/05-camp.webp',
     alt: 'Моменты Кэмпа',
     title: 'Сильные вместе',
-    caption: 'Здесь рождаются связи, которые остаются после Кэмпа.',
+    caption: 'Вместе мы можем реализовать то, что поодиночке казалось бы невозможным.',
   },
   {
     src: '/images/camp/opt/06-camp.webp',
     alt: 'Моменты Кэмпа',
     title: 'Энергия регионов',
-    caption: 'Разные города — одна цель и общая победа.',
+    caption: 'Сила движения складывается из активности каждого города.',
   },
   {
     src: '/images/camp/opt/07-camp.webp',
     alt: 'Моменты Кэмпа',
     title: 'Награда победителю',
-    caption: 'Кэмп ждёт тот регион, который приведёт больше новичков.',
+    caption: 'Каждый привлечённый новичок приближает команду к общей победе.',
   },
 ]
 
-const cards: iCardItem[] = IMAGES.map((img, i) => ({
-  title: img.title,
-  description: img.caption,
-  src: img.src,
-  color: i % 2 === 0 ? '#320066' : '#4c008e',
-  textColor: '#ffffff',
-}))
-
 export function CampGallery() {
+  const { t } = useT()
   const [isDesktop, setIsDesktop] = useState(false)
 
   // Don't even mount the GSAP carousel on phones: it sets up ScrollTrigger
@@ -69,6 +63,19 @@ export function CampGallery() {
     mq.addEventListener('change', sync)
     return () => mq.removeEventListener('change', sync)
   }, [])
+
+  const translatedImages = useMemo(
+    () => IMAGES.map((img) => ({ ...img, alt: t(img.alt), title: t(img.title), caption: t(img.caption) })),
+    [t]
+  )
+
+  const cards: iCardItem[] = translatedImages.map((img, i) => ({
+    title: img.title,
+    description: img.caption,
+    src: img.src,
+    color: i % 2 === 0 ? '#320066' : '#4c008e',
+    textColor: '#ffffff',
+  }))
 
   return (
     <section id="camp" className="relative w-full bg-white text-white">
@@ -84,7 +91,7 @@ export function CampGallery() {
       {/* Desktop: CurvedCarousel (scroll-driven) — mounted only on md+ */}
       {isDesktop && <div className="hidden md:block">
         <CurvedCarousel
-          images={IMAGES}
+          images={translatedImages}
           mode="scroll"
           intro
           snap

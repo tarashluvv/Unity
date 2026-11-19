@@ -1,5 +1,6 @@
 'use client'
 import { useMemo, useState } from 'react'
+import { useT } from '@/lib/i18n'
 import type { Region, RegionStats, Snapshot } from '@/lib/types'
 
 function Spark({ values }: { values: number[] }) {
@@ -43,6 +44,7 @@ export function Leaderboard({
   snapshots: Snapshot[]
   onSelectRegion: (id: string) => void
 }) {
+  const { t } = useT()
   const [q, setQ] = useState('')
   const rows = useMemo(() => {
     const merged = regions.map((r) => {
@@ -53,10 +55,10 @@ export function Leaderboard({
       const thresholdOk = s ? s.activistsCount >= r.minThreshold : false
       const trend = snapshots.slice(-5).map((sn) => sn.stats.find((x) => x.regionId === r.id)?.activistsCount || 0)
       return { region: r, stats: s, conv, thresholdPct, thresholdPctRaw, thresholdOk, trend }
-    }).filter((x) => !q || x.region.name.toLowerCase().includes(q.toLowerCase()) || x.region.cities.some(c => c.toLowerCase().includes(q.toLowerCase())))
+    }).filter((x) => !q || [x.region.name, t(x.region.name), ...x.region.cities, ...x.region.cities.map((c) => t(c))].some((s) => s.toLowerCase().includes(q.toLowerCase())))
     merged.sort((a, b) => (b.stats?.activistsCount || 0) - (a.stats?.activistsCount || 0))
     return merged
-  }, [regions, stats, snapshots, q])
+  }, [regions, stats, snapshots, q, t])
 
   const maxDelta = Math.max(...stats.map((s) => s.deltaActivists), 0)
   const top3 = rows.slice(0, 3)
@@ -65,14 +67,14 @@ export function Leaderboard({
     <div id="leaderboard" className="section-wrap mx-auto w-full max-w-6xl px-4 sm:px-3">
       <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">Соревнование</div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-4xl">Лидерборд регионов</h2>
-          <p className="mt-1 max-w-2xl text-sm text-white/90">Рейтинг регионов по привлечённым новичкам. Нажмите на регион для детализации.</p>
+          <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Соревнование')}</div>
+          <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-4xl">{t('Лидерборд регионов')}</h2>
+          <p className="mt-1 max-w-2xl text-sm text-white/90">{t('Рейтинг регионов по привлечённым новичкам. Нажмите на регион для детализации.')}</p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           <div className="relative w-full sm:w-auto ml-auto">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9a93a4]">⌕</span>
-            <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Регион или город…" className="w-full rounded-full border border-[#e9e0f2] bg-white py-2.5 pl-8 pr-3.5 text-sm text-[#320066] outline-none transition focus:border-[#ffa400]/40 focus:ring-4 focus:ring-[#ffa400]/10 sm:w-60" />
+            <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder={t('Регион или город…')} className="w-full rounded-full border border-[#e9e0f2] bg-white py-2.5 pl-8 pr-3.5 text-sm text-[#320066] outline-none transition focus:border-[#ffa400]/40 focus:ring-4 focus:ring-[#ffa400]/10 sm:w-60" />
           </div>
         </div>
       </div>
@@ -92,11 +94,11 @@ export function Leaderboard({
               >
                 <div className="mb-2 flex items-center justify-between">
                   <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xl font-extrabold text-white ${isFirst ? 'bg-[#ffa400]' : rank===2 ? 'bg-[#7c2bb5]' : 'bg-[#4c008e]'}`}>{rank}</span>
-                  {isFirst && <span className="rounded-full bg-[#4c008e] px-2 py-0.5 text-[10px] font-bold text-white">ЛИДЕР</span>}
+                  {isFirst && <span className="rounded-full bg-[#4c008e] px-2 py-0.5 text-[10px] font-bold text-white">{t('ЛИДЕР')}</span>}
                 </div>
-                <div className="truncate font-bold text-3xl text-[#320066]">{row.region.name}</div>
+                <div className="truncate font-bold text-3xl text-[#320066]">{t(row.region.name)}</div>
                 <div className="mt-1 text-3xl font-extrabold text-[#ffa400]">{(row.stats?.activistsCount || 0).toLocaleString('ru-RU')}</div>
-                <div className="mt-1 text-xs text-[#6b6472]">{row.thresholdPctRaw}% от порога · {(row.conv * 100).toFixed(1)}% конверсия</div>
+                <div className="mt-1 text-xs text-[#6b6472]">{row.thresholdPctRaw}% {t('от порога')} · {(row.conv * 100).toFixed(1)}% {t('конверсия')}</div>
               </button>
             )
           })}
@@ -120,38 +122,38 @@ export function Leaderboard({
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-lg font-extrabold ${rankTone}`}>{idx + 1}</div>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xl font-bold text-[#320066]">{row.region.name}</span>
-                      {idx === 0 && <span className="rounded-full bg-[#fff1d6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#ffa400]">Лидер</span>}
-                      {isBurst && <span className="animate-pulse-glow rounded-full bg-gradient-to-r from-[#4c008e] to-[#ffa400] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Прорыв</span>}
+                      <span className="text-xl font-bold text-[#320066]">{t(row.region.name)}</span>
+                      {idx === 0 && <span className="rounded-full bg-[#fff1d6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#ffa400]">{t('Лидер')}</span>}
+                      {isBurst && <span className="animate-pulse-glow rounded-full bg-gradient-to-r from-[#4c008e] to-[#ffa400] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">{t('Прорыв')}</span>}
                     </div>
                     <div className="mt-0.5 flex flex-wrap gap-1.5">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.thresholdOk ? 'bg-[#fff1d6] text-[#ffa400]' : 'bg-[#f5eefb] text-[#7c2bb5]'}`}>{row.thresholdOk ? 'Порог достигнут' : 'В гонке'}</span>
-                      <span className="text-xs text-[#6b6472]">{row.region.cities.length} городов · порог {row.region.minThreshold}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.thresholdOk ? 'bg-[#fff1d6] text-[#ffa400]' : 'bg-[#f5eefb] text-[#7c2bb5]'}`}>{row.thresholdOk ? t('Порог достигнут') : t('В гонке')}</span>
+                      <span className="text-xs text-[#6b6472]">{row.region.cities.length} {t('городов · порог')} {row.region.minThreshold}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex-1 space-y-2">
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <span className="font-medium text-[#5f5768]">Новички <b className="text-[#ffa400]">{(s?.activistsCount || 0).toLocaleString('ru-RU')}</b> / {row.region.minThreshold.toLocaleString('ru-RU')}</span>
+                    <span className="font-medium text-[#5f5768]">{t('Новички')} <b className="text-[#ffa400]">{(s?.activistsCount || 0).toLocaleString('ru-RU')}</b> / {row.region.minThreshold.toLocaleString('ru-RU')}</span>
                     <span className="flex items-center gap-2">
                       <span className="rounded-full bg-[#fff1d6] px-2 py-0.5 font-bold text-[#ffa400]">{row.thresholdPctRaw}%</span>
-                      <span className="text-[#6b6472]">конверсия {(row.conv * 100).toFixed(1)}%</span>
+                      <span className="text-[#6b6472]">{t('конверсия')} {(row.conv * 100).toFixed(1)}%</span>
                     </span>
                   </div>
                   <div className="relative h-3.5 overflow-hidden rounded-full bg-[#efe8f6] ring-1 ring-inset ring-[#e9e0f2]">
                     <div className={`h-full rounded-full transition-all duration-700 ${row.thresholdOk ? 'bg-gradient-to-r from-[#ffb52e] to-[#ffa400]' : 'bg-gradient-to-r from-[#7c2bb5] to-[#ffa400]'}`} style={{ width: `${row.thresholdPct}%` }} />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#6b6472]">
-                    <span>Заявлено: <b className="text-[#4c008e]">{s?.fgCount || 0}</b></span>
-                    <span>Подтверждено: <b className="text-[#4c008e]">{s?.appCount || 0}</b></span>
-                    <span>Отклонено: <b className="text-[#4c008e]">{s?.rejectedCount || 0}</b></span>
+                    <span>{t('Заявлено:')} <b className="text-[#4c008e]">{s?.fgCount || 0}</b></span>
+                    <span>{t('Подтверждено:')} <b className="text-[#4c008e]">{s?.appCount || 0}</b></span>
+                    <span>{t('Отклонено:')} <b className="text-[#4c008e]">{s?.rejectedCount || 0}</b></span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 border-t border-[#eee7f5] pt-3 sm:gap-4 lg:border-0 lg:pt-0">
                   <div className="flex flex-col items-start sm:items-end">
-                    <div className="text-[10px] font-semibold uppercase tracking-wide text-[#9a93a4]">Тренд</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wide text-[#9a93a4]">{t('Тренд')}</div>
                     <Spark values={row.trend} />
                   </div>
                   <div className="text-right">

@@ -1,7 +1,9 @@
 'use client'
+import { useT } from '@/lib/i18n'
 import type { Region, Snapshot, VerifiedRecord } from '@/lib/types'
 
 export function RegionDetailsModal({ region, snapshot, onClose }: { region: Region; snapshot: Snapshot; onClose: () => void }) {
+  const { t } = useT()
   const s = snapshot.stats.find((x) => x.regionId === region.id)
   const recs: VerifiedRecord[] = snapshot.records.filter((r) => r.regionId === region.id)
   const noApp = recs.filter((r) => r.status === 'NOT_IN_APP').length || Math.max(0, (s?.fgCount || 0) - (s?.appCount || 0))
@@ -9,10 +11,10 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
   const dup = recs.filter((r) => r.status === 'DUPLICATE').length
 
   const steps = [
-    { label: 'Пришли на ФГ (по спискам)', value: s?.fgCount || 0, tone: 'from-[#d9cde8] to-[#e9e0f2]' },
-    { label: 'Найдены в базе приложения', value: s?.appCount || 0, tone: 'from-[#9272b8] to-[#7c2bb5]' },
-    { label: 'Переведены на декабрьское испытание', value: s?.examCount || 0, tone: 'from-[#4c008e] to-[#6b1ba8]' },
-    { label: 'Подтверждённые новички', value: s?.activistsCount || 0, tone: 'from-[#ffa400] to-[#ffb52e]' },
+    { label: t('Пришли на ФГ (по спискам)'), value: s?.fgCount || 0, tone: 'from-[#d9cde8] to-[#e9e0f2]' },
+    { label: t('Найдены в базе приложения'), value: s?.appCount || 0, tone: 'from-[#9272b8] to-[#7c2bb5]' },
+    { label: t('Переведены на декабрьское испытание'), value: s?.examCount || 0, tone: 'from-[#4c008e] to-[#6b1ba8]' },
+    { label: t('Подтверждённые новички'), value: s?.activistsCount || 0, tone: 'from-[#ffa400] to-[#ffb52e]' },
   ]
   const max = Math.max(1, steps[0].value)
   const byCity = s?.byCity?.length ? s.byCity : region.cities.map((c) => ({ city: c, fgCount: 0, appCount: 0, examCount: 0, activistsCount: 0, rejectedCount: 0 }))
@@ -26,26 +28,26 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
           <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-[#d9cde8] sm:hidden" />
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#4c008e] to-[#ffa400] text-lg font-extrabold text-white shadow-md sm:h-12 sm:w-12">{region.name.slice(0,1)}</div>
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#4c008e] to-[#ffa400] text-lg font-extrabold text-white shadow-md sm:h-12 sm:w-12">{t(region.name).slice(0,1)}</div>
               <div className="min-w-0">
-                <h3 className="truncate text-lg font-extrabold text-[#320066] sm:text-2xl">{region.name}</h3>
-                <p className="text-xs text-[#6b6472] sm:text-sm">Воронка, прогресс к порогу и вклад городов · {region.cities.length} городов</p>
+                <h3 className="truncate text-lg font-extrabold text-[#320066] sm:text-2xl">{t(region.name)}</h3>
+                <p className="text-xs text-[#6b6472] sm:text-sm">{t('Воронка, прогресс к порогу и вклад городов')} · {region.cities.length} {t('городов')}</p>
               </div>
             </div>
-            <button onClick={onClose} className="shrink-0 rounded-full border border-[#e9e0f2] bg-white px-3 py-1.5 text-sm font-semibold text-[#4c008e] transition hover:bg-[#f5eefb] sm:px-3.5">Закрыть</button>
+            <button onClick={onClose} className="shrink-0 rounded-full border border-[#e9e0f2] bg-white px-3 py-1.5 text-sm font-semibold text-[#4c008e] transition hover:bg-[#f5eefb] sm:px-3.5">{t('Закрыть')}</button>
           </div>
         </div>
 
         <div className="space-y-5 p-5 sm:p-6">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-3">
-            <Metric label="Новички" value={s?.activistsCount || 0} accent />
-            <Metric label="Порог" value={region.minThreshold} />
-            <Metric label="Прогресс" value={`${pct}%`} accent={pct >= 100} />
+            <Metric label={t('Новички')} value={s?.activistsCount || 0} accent />
+            <Metric label={t('Порог')} value={region.minThreshold} />
+            <Metric label={t('Прогресс')} value={`${pct}%`} accent={pct >= 100} />
           </div>
 
           <div className="grid gap-5 lg:grid-cols-2">
             <div className="rounded-2xl border border-[#e9e0f2] bg-white p-4 shadow-sm sm:p-5">
-              <h4 className="mb-4 flex items-center gap-2 font-bold text-[#320066]"><span className="h-2 w-2 rounded-full bg-[#ffa400]" />Воронка</h4>
+              <h4 className="mb-4 flex items-center gap-2 font-bold text-[#320066]"><span className="h-2 w-2 rounded-full bg-[#ffa400]" />{t('Воронка')}</h4>
               <div className="space-y-4">
                 {steps.map((st, i) => {
                   const w = (st.value / max) * 100
@@ -67,33 +69,33 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
             </div>
 
             <div className="rounded-2xl border border-[#e9e0f2] bg-white p-4 shadow-sm sm:p-5">
-              <h4 className="mb-4 flex items-center gap-2 font-bold text-[#320066]"><span className="h-2 w-2 rounded-full bg-[#4c008e]" />Разбор отклонений</h4>
+              <h4 className="mb-4 flex items-center gap-2 font-bold text-[#320066]"><span className="h-2 w-2 rounded-full bg-[#4c008e]" />{t('Разбор отклонений')}</h4>
               <div className="space-y-3">
-                <RejectRow label="Нет в выгрузке приложения" value={noApp} total={s?.fgCount || 0} color="bg-[#7c2bb5]" />
-                <RejectRow label="Не сдали / не на этапе испытания" value={notExam} total={s?.examCount || 0} color="bg-[#4c008e]" />
-                <RejectRow label="Дубликаты" value={dup} total={(s?.appCount || 0) + dup} color="bg-[#a49aaf]" />
+                <RejectRow label={t('Нет в выгрузке приложения')} value={noApp} total={s?.fgCount || 0} color="bg-[#7c2bb5]" />
+                <RejectRow label={t('Не сдали / не на этапе испытания')} value={notExam} total={s?.examCount || 0} color="bg-[#4c008e]" />
+                <RejectRow label={t('Дубликаты')} value={dup} total={(s?.appCount || 0) + dup} color="bg-[#a49aaf]" />
               </div>
               <div className="mt-4 rounded-xl border border-[#e9e0f2] bg-[#faf7fd] p-3 text-xs leading-relaxed text-[#6b6472]">
-                Показатели обезличены и рассчитаны по текущему опубликованному срезу. Прирост: <b className={(s?.deltaActivists||0)>=0?'text-[#ffa400]':'text-rose-700'}>{(s?.deltaActivists||0)>=0?'+':''}{s?.deltaActivists||0}</b>.
+                {t('Показатели обезличены и рассчитаны по текущему опубликованному срезу. Прирост:')} <b className={(s?.deltaActivists||0)>=0?'text-[#ffa400]':'text-rose-700'}>{(s?.deltaActivists||0)>=0?'+':''}{s?.deltaActivists||0}</b>.
               </div>
             </div>
           </div>
 
           <div className="rounded-2xl border border-[#e9e0f2] bg-white p-4 shadow-sm sm:p-5">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-              <h4 className="font-bold text-[#320066]">Вклад городов внутри региона</h4>
-              <span className="text-xs text-[#6b6472]">по новичкам</span>
+              <h4 className="font-bold text-[#320066]">{t('Вклад городов внутри региона')}</h4>
+              <span className="text-xs text-[#6b6472]">{t('по новичкам')}</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-[#e9e0f2] text-xs uppercase tracking-wide text-[#6b6472]">
-                    <th className="px-3 py-2.5 font-semibold">Город</th>
-                    <th className="px-3 py-2.5 font-semibold">Заявлено</th>
-                    <th className="px-3 py-2.5 font-semibold">Подтв.</th>
-                    <th className="px-3 py-2.5 font-semibold">Новички</th>
-                    <th className="px-3 py-2.5 font-semibold">Отклонено</th>
-                    <th className="px-3 py-2.5 font-semibold">Вклад</th>
+                    <th className="px-3 py-2.5 font-semibold">{t('Город')}</th>
+                    <th className="px-3 py-2.5 font-semibold">{t('Заявлено')}</th>
+                    <th className="px-3 py-2.5 font-semibold">{t('Подтв.')}</th>
+                    <th className="px-3 py-2.5 font-semibold">{t('Новички')}</th>
+                    <th className="px-3 py-2.5 font-semibold">{t('Отклонено')}</th>
+                    <th className="px-3 py-2.5 font-semibold">{t('Вклад')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -101,7 +103,7 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
                     const share = s && s.activistsCount > 0 ? Math.round((c.activistsCount / s.activistsCount) * 100) : 0
                     return (
                       <tr key={c.city} className="border-b border-[#f2ecf8] transition hover:bg-[#faf7fd]">
-                        <td className="px-3 py-3 font-semibold text-[#320066]">{c.city}</td>
+                        <td className="px-3 py-3 font-semibold text-[#320066]">{t(c.city)}</td>
                         <td className="px-3 py-3 text-[#5f5768]">{c.fgCount}</td>
                         <td className="px-3 py-3 text-[#5f5768]">{c.appCount}</td>
                         <td className="px-3 py-3 font-extrabold text-[#ffa400]">{c.activistsCount}</td>

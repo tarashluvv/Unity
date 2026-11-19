@@ -1,4 +1,5 @@
 import UnityHero from '@/components/UnityHero'
+import { LangToggle } from '@/lib/i18n'
 
 export const metadata = {
   title: 'Unity',
@@ -13,6 +14,9 @@ export const metadata = {
 export default function HomePage() {
   return (
     <main className="h-screen w-screen overflow-hidden bg-[#4c008e]">
+      <div className="fixed right-4 top-4 z-50">
+        <LangToggle />
+      </div>
       <section className="h-full w-full">
         <UnityHero />
       </section>

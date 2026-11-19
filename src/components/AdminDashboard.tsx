@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { getInitialState, getPublished, loadState, saveState } from '@/lib/data'
+import { LangToggle, useT } from '@/lib/i18n'
 import { aggregateDirect, parseAppRows, parseRegionRows, reconcile } from '@/lib/matcher'
 import type { AppState, ReconcileSummary, Region, Snapshot } from '@/lib/types'
 
@@ -25,6 +26,8 @@ function readSheet(file: File): Promise<Record<string, unknown>[]> {
 }
 
 export default function AdminDashboard() {
+  const { t, lang } = useT()
+  const locale = lang === 'kk' ? 'kk-KZ' : 'ru-RU'
   const [state, setState] = useState<AppState | null>(null)
   const [appRows, setAppRows] = useState<Record<string, unknown>[]>([])
   const [regionRows, setRegionRows] = useState<Record<string, unknown>[]>([])
@@ -53,7 +56,7 @@ export default function AdminDashboard() {
 
   const published = useMemo(() => (state ? getPublished(state) : null), [state])
 
-  if (!state) return <div className="p-8 text-[#4c008e]">Загрузка…</div>
+  if (!state) return <div className="p-8 text-[#4c008e]">{t('Загрузка…')}</div>
 
   const onFile = async (file: File, zone: 'app' | 'region') => {
     const rows = await readSheet(file)
@@ -71,14 +74,14 @@ export default function AdminDashboard() {
     const prevStats = published?.stats
     if (mode === 'single') {
       const source = appRows.length ? appRows : regionRows
-      if (!source.length) return alert('Загрузите файл базы (с колонками Регион, Город, Фамилия, Имя, Номер телефона и показателями)')
+      if (!source.length) return alert(t('Загрузите файл базы (с колонками Регион, Город, Фамилия, Имя, Номер телефона и показателями)'))
       const app = parseAppRows(source, regionsDraft)
-      if (!app.length) return alert('Не удалось распознать записи. Проверьте колонки (Регион/Город/Фамилия/Имя/Телефон).')
+      if (!app.length) return alert(t('Не удалось распознать записи. Проверьте колонки (Регион/Город/Фамилия/Имя/Телефон).'))
       const res = aggregateDirect(app, regionsDraft, prevStats)
       setSummary(res)
       return
     }
-    if (!appRows.length || !regionRows.length) return alert('Загрузите оба файла: базу приложения и списки регионов')
+    if (!appRows.length || !regionRows.length) return alert(t('Загрузите оба файла: базу приложения и списки регионов'))
     const app = parseAppRows(appRows, regionsDraft)
     const region = parseRegionRows(regionRows, regionsDraft)
     const res = reconcile(app, region, regionsDraft, prevStats)
@@ -90,7 +93,7 @@ export default function AdminDashboard() {
     const snap: Snapshot = {
       id: 'snap-' + Date.now(),
       createdAt: new Date().toISOString(),
-      comment: comment || 'Обновление',
+      comment: comment || t('Обновление'),
       stats: summary.stats,
       records: summary.records,
     }
@@ -106,7 +109,7 @@ export default function AdminDashboard() {
     const next = { ...state, regions: regionsDraft }
     setState(next)
     saveState(next)
-    alert('Регионы и пороги сохранены')
+    alert(t('Регионы и пороги сохранены'))
   }
 
   const resetDemo = () => {
@@ -115,7 +118,7 @@ export default function AdminDashboard() {
     setRegionsDraft(fresh.regions)
     saveState(fresh)
     setSummary(null)
-    alert('Сброшено к демо-данным')
+    alert(t('Сброшено к демо-данным'))
   }
 
   const downloadErrors = () => {
@@ -154,13 +157,14 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-3">
             <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#ffa400] text-sm font-extrabold text-white shadow">A</div>
             <div className="min-w-0">
-              <h1 className="truncate text-base font-extrabold leading-tight text-white sm:text-lg">Админ-панель · Гонка регионов</h1>
-              <p className="text-[11px] text-white/75 sm:text-xs">Загрузка, сверка, качество данных и публикация срезов</p>
+              <h1 className="truncate text-base font-extrabold leading-tight text-white sm:text-lg">{t('Админ-панель · Гонка регионов')}</h1>
+              <p className="text-[11px] text-white/75 sm:text-xs">{t('Загрузка, сверка, качество данных и публикация срезов')}</p>
             </div>
           </div>
           <div className="flex w-full items-center gap-2 text-sm sm:w-auto">
-            <a href="/camp2026#share" className="flex-1 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-center font-semibold text-white transition hover:bg-white/20 sm:flex-none sm:py-1.5">Отчёт</a>
-            <a href="/camp2026" className="flex-1 rounded-full bg-white px-3.5 py-2 text-center font-semibold text-[#4c008e] transition hover:bg-[#fff1d6] sm:flex-none sm:py-1.5">Дашборд</a>
+            <LangToggle compact />
+            <a href="/camp2026#share" className="flex-1 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-center font-semibold text-white transition hover:bg-white/20 sm:flex-none sm:py-1.5">{t('Отчёт')}</a>
+            <a href="/camp2026" className="flex-1 rounded-full bg-white px-3.5 py-2 text-center font-semibold text-[#4c008e] transition hover:bg-[#fff1d6] sm:flex-none sm:py-1.5">{t('Дашборд')}</a>
             <button
               onClick={async () => {
                 await fetch('/api/admin/logout', { method: 'POST' })
@@ -168,7 +172,7 @@ export default function AdminDashboard() {
               }}
               className="flex-1 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-center font-semibold text-white transition hover:bg-white/20 sm:flex-none sm:py-1.5"
             >
-              Выйти
+              {t('Выйти')}
             </button>
           </div>
         </div>
@@ -178,49 +182,49 @@ export default function AdminDashboard() {
         <section className="overflow-hidden rounded-[1.5rem] border border-[#e9e0f2] bg-white/95 p-5 shadow-sm backdrop-blur sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">Сессия</div>
-              <h2 className="text-xl font-extrabold text-[#320066]">Непрерывное обновление (5 часов)</h2>
-              <p className="mt-1 text-sm text-[#6b6472]">Итеративно загружайте файлы, сверяйте качество и публикуйте срезы до целевого результата.</p>
+              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Сессия')}</div>
+              <h2 className="text-xl font-extrabold text-[#320066]">{t('Непрерывное обновление (5 часов)')}</h2>
+              <p className="mt-1 text-sm text-[#6b6472]">{t('Итеративно загружайте файлы, сверяйте качество и публикуйте срезы до целевого результата.')}</p>
             </div>
             <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
               {!sessionStart ? (
-                <button onClick={() => { setSessionStart(Date.now()); setNow(Date.now()) }} className="w-full rounded-full bg-[#4c008e] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#320066] sm:w-auto">Старт сессии</button>
+                <button onClick={() => { setSessionStart(Date.now()); setNow(Date.now()) }} className="w-full rounded-full bg-[#4c008e] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#320066] sm:w-auto">{t('Старт сессии')}</button>
               ) : (
                 <>
-                  <div className="flex-1 rounded-xl border border-[#e9e0f2] bg-white px-3 py-2 text-sm sm:flex-none"><span className="text-[#6b6472]">Прошло: </span><span className="font-semibold text-[#4c008e]">{fmtDur(sessionElapsedMs)}</span></div>
-                  <div className="flex-1 rounded-xl border border-[#ffa400]/30 bg-[#fff1d6] px-3 py-2 text-sm sm:flex-none"><span className="text-[#5f5768]">Осталось: </span><span className="font-semibold text-[#ffa400]">{fmtDur(sessionLeftMs)}</span></div>
-                  <button onClick={() => { setSessionStart(null); setNow(null) }} className="w-full rounded-full border border-[#d9cde8] px-4 py-2.5 text-sm font-semibold text-[#4c008e] hover:bg-[#f5eefb] sm:w-auto">Сброс</button>
+                  <div className="flex-1 rounded-xl border border-[#e9e0f2] bg-white px-3 py-2 text-sm sm:flex-none"><span className="text-[#6b6472]">{t('Прошло:')} </span><span className="font-semibold text-[#4c008e]">{fmtDur(sessionElapsedMs)}</span></div>
+                  <div className="flex-1 rounded-xl border border-[#ffa400]/30 bg-[#fff1d6] px-3 py-2 text-sm sm:flex-none"><span className="text-[#5f5768]">{t('Осталось:')} </span><span className="font-semibold text-[#ffa400]">{fmtDur(sessionLeftMs)}</span></div>
+                  <button onClick={() => { setSessionStart(null); setNow(null) }} className="w-full rounded-full border border-[#d9cde8] px-4 py-2.5 text-sm font-semibold text-[#4c008e] hover:bg-[#f5eefb] sm:w-auto">{t('Сброс')}</button>
                 </>
               )}
             </div>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Metric label="Итераций (снепшотов)" value={state.snapshots.length} />
-            <Metric label="Записей в последней сверке" value={summary ? summary.records.length : '—'} />
-            <Metric label="Распознано регион (%)" value={summary ? `${recognizedPct}%` : '—'} accent />
-            <Metric label="Не распознан регион" value={summary ? summary.unrecognized : '—'} warn={!!summary && summary.unrecognized > 0} />
+            <Metric label={t('Итераций (снепшотов)')} value={state.snapshots.length} />
+            <Metric label={t('Записей в последней сверке')} value={summary ? summary.records.length : '—'} />
+            <Metric label={t('Распознано регион (%)')} value={summary ? `${recognizedPct}%` : '—'} accent />
+            <Metric label={t('Не распознан регион')} value={summary ? summary.unrecognized : '—'} warn={!!summary && summary.unrecognized > 0} />
           </div>
         </section>
 
         <section className="rounded-[1.5rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">Настройки</div>
-              <h2 className="text-xl font-extrabold text-[#320066]">Регионы и минимальные пороги</h2>
+              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Настройки')}</div>
+              <h2 className="text-xl font-extrabold text-[#320066]">{t('Регионы и минимальные пороги')}</h2>
             </div>
             <div className="flex gap-2">
-              <button onClick={saveRegions} className="rounded-full bg-[#4c008e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#320066]">Сохранить</button>
-              <button onClick={resetDemo} className="rounded-full border border-[#d9cde8] px-4 py-2 text-sm font-semibold text-[#4c008e] transition hover:bg-[#f5eefb]">Сбросить демо</button>
+              <button onClick={saveRegions} className="rounded-full bg-[#4c008e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#320066]">{t('Сохранить')}</button>
+              <button onClick={resetDemo} className="rounded-full border border-[#d9cde8] px-4 py-2 text-sm font-semibold text-[#4c008e] transition hover:bg-[#f5eefb]">{t('Сбросить демо')}</button>
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead>
                 <tr className="border-b border-[#e9e0f2] text-xs uppercase tracking-wide text-[#6b6472]">
-                  <th className="py-2 pr-3">Регион</th>
-                  <th className="py-2 pr-3">Города в составе</th>
-                  <th className="py-2 pr-3">Алиасы (через запятую)</th>
-                  <th className="py-2">Мин. порог</th>
+                  <th className="py-2 pr-3">{t('Регион')}</th>
+                  <th className="py-2 pr-3">{t('Города в составе')}</th>
+                  <th className="py-2 pr-3">{t('Алиасы (через запятую)')}</th>
+                  <th className="py-2">{t('Мин. порог')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -261,36 +265,36 @@ export default function AdminDashboard() {
         <section className="rounded-[1.5rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">Шаг 1–2</div>
-              <h2 className="mb-1 text-xl font-extrabold text-[#320066]">Загрузка и автоматическая сверка</h2>
+              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Шаг 1–2')}</div>
+              <h2 className="mb-1 text-xl font-extrabold text-[#320066]">{t('Загрузка и автоматическая сверка')}</h2>
               <p className="text-sm text-[#6b6472]">
-                Статистика считается по 7 регионам. Поддерживаются файлы с <strong>Регионом/Городом</strong> и форматы из «Общего Кампуса».
+                {t('Статистика считается по 7 регионам. Поддерживаются файлы с')} <strong>{t('Регионом/Городом')}</strong> {t('и форматы из «Общего Кампуса».')}
               </p>
             </div>
             <div className="flex rounded-full border border-[#e9e0f2] bg-[#faf7fd] p-1 text-sm">
-              <button onClick={() => setMode('single')} className={`rounded-full px-3.5 py-1.5 font-semibold transition ${mode === 'single' ? 'bg-[#4c008e] text-white' : 'text-[#5f5768] hover:text-[#320066]'}`}>Единый файл</button>
-              <button onClick={() => setMode('pair')} className={`rounded-full px-3.5 py-1.5 font-semibold transition ${mode === 'pair' ? 'bg-[#4c008e] text-white' : 'text-[#5f5768] hover:text-[#320066]'}`}>Сверка 2 файлов</button>
+              <button onClick={() => setMode('single')} className={`rounded-full px-3.5 py-1.5 font-semibold transition ${mode === 'single' ? 'bg-[#4c008e] text-white' : 'text-[#5f5768] hover:text-[#320066]'}`}>{t('Единый файл')}</button>
+              <button onClick={() => setMode('pair')} className={`rounded-full px-3.5 py-1.5 font-semibold transition ${mode === 'pair' ? 'bg-[#4c008e] text-white' : 'text-[#5f5768] hover:text-[#320066]'}`}>{t('Сверка 2 файлов')}</button>
             </div>
           </div>
 
           <div className="mb-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-[#e9e0f2] bg-[#faf7fd] p-4">
-              <div className="mb-1 font-semibold text-[#320066]">Шаблон: база приложения (конкурс)</div>
-              <div className="mb-3 text-sm text-[#6b6472]">Колонки: ID заявки на ФГ, Регион, Город, Фамилия, Имя, Номер телефона, Роль, ГК, Участие в акциях, Участие на рейде, Участие в кейсе.</div>
-              <a href="/templates/template-app-base.xlsx" download className="inline-flex rounded-full bg-[#4c008e] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#320066]">Скачать .xlsx</a>
+              <div className="mb-1 font-semibold text-[#320066]">{t('Шаблон: база приложения (конкурс)')}</div>
+              <div className="mb-3 text-sm text-[#6b6472]">{t('Колонки: ID заявки на ФГ, Регион, Город, Фамилия, Имя, Номер телефона, Роль, ГК, Участие в акциях, Участие на рейде, Участие в кейсе.')}</div>
+              <a href="/templates/template-app-base.xlsx" download className="inline-flex rounded-full bg-[#4c008e] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#320066]">{t('Скачать .xlsx')}</a>
             </div>
             <div className="rounded-xl border border-[#e9e0f2] bg-[#faf7fd] p-4">
-              <div className="mb-1 font-semibold text-[#320066]">Шаблон: списки от регионов (А/С)</div>
-              <div className="mb-3 text-sm text-[#6b6472]">Колонки: Регион, Город, Фамилия, Имя, Номер телефона, Telegram (при наличии). Город маппится в регион автоматически.</div>
-              <a href="/templates/template-region-lists.xlsx" download className="inline-flex rounded-full bg-[#4c008e] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#320066]">Скачать .xlsx</a>
+              <div className="mb-1 font-semibold text-[#320066]">{t('Шаблон: списки от регионов (А/С)')}</div>
+              <div className="mb-3 text-sm text-[#6b6472]">{t('Колонки: Регион, Город, Фамилия, Имя, Номер телефона, Telegram (при наличии). Город маппится в регион автоматически.')}</div>
+              <a href="/templates/template-region-lists.xlsx" download className="inline-flex rounded-full bg-[#4c008e] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#320066]">{t('Скачать .xlsx')}</a>
             </div>
           </div>
 
           {mode === 'single' ? (
             <div className="grid gap-4">
               <Drop
-                title="Единая база (рекомендуется для непрерывного обновления)"
-                hint="Один файл: Регион/Город, Фамилия, Имя, Телефон, показатели (ГК/акции/рейд/кейс/роль). Подходит для шаблона конкурса и файлов из «Общего Кампуса»."
+                title={t('Единая база (рекомендуется для непрерывного обновления)')}
+                hint={t('Один файл: Регион/Город, Фамилия, Имя, Телефон, показатели (ГК/акции/рейд/кейс/роль). Подходит для шаблона конкурса и файлов из «Общего Кампуса».')}
                 name={appName || regionName}
                 onFile={(f) => {
                   onFile(f, 'app')
@@ -301,71 +305,71 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              <Drop title="Зона 1: Эталонная база из приложения" hint="Excel/CSV: Регион, Город, Фамилия, Имя, Номер телефона, показатели/статусы" name={appName} onFile={(f) => onFile(f, 'app')} />
-              <Drop title="Зона 2: Списки от регионов (А/С)" hint="Excel/CSV: Регион, Город, Фамилия, Имя, Номер телефона / Telegram" name={regionName} onFile={(f) => onFile(f, 'region')} />
+              <Drop title={t('Зона 1: Эталонная база из приложения')} hint={t('Excel/CSV: Регион, Город, Фамилия, Имя, Номер телефона, показатели/статусы')} name={appName} onFile={(f) => onFile(f, 'app')} />
+              <Drop title={t('Зона 2: Списки от регионов (А/С)')} hint={t('Excel/CSV: Регион, Город, Фамилия, Имя, Номер телефона / Telegram')} name={regionName} onFile={(f) => onFile(f, 'region')} />
             </div>
           )}
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <button onClick={runReconcile} className="rounded-full bg-[#4c008e] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#320066]">Рассчитать / Сверить</button>
-            <span className="text-sm text-[#6b6472]">Нормализация, маппинг город→регион, дедупликация — автоматически. Режим «Единый файл» агрегирует статистику напрямую.</span>
+            <button onClick={runReconcile} className="rounded-full bg-[#4c008e] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#320066]">{t('Рассчитать / Сверить')}</button>
+            <span className="text-sm text-[#6b6472]">{t('Нормализация, маппинг город→регион, дедупликация — автоматически. Режим «Единый файл» агрегирует статистику напрямую.')}</span>
           </div>
         </section>
 
         {summary && (
           <section className="rounded-[1.5rem] border border-amber-200/70 bg-gradient-to-b from-white to-[#fff1d6]/30 p-5 shadow-sm ring-1 ring-amber-100 sm:p-6">
-            <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">Шаг 3</div>
-            <h2 className="mb-4 text-xl font-extrabold text-[#320066]">Предпросмотр и публикация (снепшот)</h2>
+            <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Шаг 3')}</div>
+            <h2 className="mb-4 text-xl font-extrabold text-[#320066]">{t('Предпросмотр и публикация (снепшот)')}</h2>
             <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              <Mini label="Было Активистов" value={summary.prevActivists} />
-              <Mini label="Станет Активистов" value={summary.nextActivists} accent />
-              <Mini label="Дельта" value={`${summary.delta >= 0 ? '+' : ''}${summary.delta}`} />
-              <Mini label="Отсеяно" value={summary.rejected} warn />
-              <Mini label="Не распознан регион" value={summary.unrecognized} warn={summary.unrecognized > 0} />
+              <Mini label={t('Было Активистов')} value={summary.prevActivists} />
+              <Mini label={t('Станет Активистов')} value={summary.nextActivists} accent />
+              <Mini label={t('Дельта')} value={`${summary.delta >= 0 ? '+' : ''}${summary.delta}`} />
+              <Mini label={t('Отсеяно')} value={summary.rejected} warn />
+              <Mini label={t('Не распознан регион')} value={summary.unrecognized} warn={summary.unrecognized > 0} />
             </div>
             {summary.unrecognized > 0 && (
               <div className="mb-4 rounded-xl border border-orange-200 bg-orange-50 p-3.5 text-sm text-orange-800">
-                <div className="font-semibold">Обнаружены записи без распознанного региона ({summary.unrecognized})</div>
+                <div className="font-semibold">{t('Обнаружены записи без распознанного региона')} ({summary.unrecognized})</div>
                 <div className="mt-1 text-orange-700">
-                  Проверьте колонку «Регион/Город» в исходном файле или добавьте алиасы в справочнике регионов выше. Примеры:{' '}
-                  {summary.records.filter((r) => r.regionId === 'unknown').slice(0, 5).map((r) => `${r.fullName || '—'} (${r.city || 'без города'})`).join('; ') || '—'}
+                  {t('Проверьте колонку «Регион/Город» в исходном файле или добавьте алиасы в справочнике регионов выше. Примеры:')}{' '}
+                  {summary.records.filter((r) => r.regionId === 'unknown').slice(0, 5).map((r) => `${r.fullName || '—'} (${r.city || t('без города')})`).join('; ') || '—'}
                 </div>
               </div>
             )}
             {summary.records.length === 0 && (
               <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-sm text-amber-800">
-                Не удалось сформировать записи из файла. Проверьте, что в файле есть строки с данными (не только заголовки) и колонки: Регион/Город, Фамилия, Имя, Номер телефона.
+                {t('Не удалось сформировать записи из файла. Проверьте, что в файле есть строки с данными (не только заголовки) и колонки: Регион/Город, Фамилия, Имя, Номер телефона.')}
               </div>
             )}
             {publishedFlash && (
               <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-sm font-semibold text-amber-700 animate-pop">
-                ✓ Снепшот опубликован — дашборд обновлён, дельты пересчитаны. Продолжайте цикл до достижения целевых показателей.
+                {t('✓ Снепшот опубликован — дашборд обновлён, дельты пересчитаны. Продолжайте цикл до достижения целевых показателей.')}
               </div>
             )}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <input
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="Комментарий, напр. «Срез пятница 18:00»"
+                placeholder={t('Комментарий, напр. «Срез пятница 18:00»')}
                 className="w-full min-w-0 flex-1 rounded-xl border border-[#e9e0f2] px-3.5 py-3 text-sm outline-none focus:border-[#ffa400]/50 focus:ring-4 focus:ring-[#ffa400]/10 sm:min-w-[260px]"
               />
-              <button onClick={publish} className="w-full rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-amber-600 sm:w-auto sm:py-2.5">Опубликовать обновление</button>
-              <button onClick={downloadErrors} className="w-full rounded-full border border-[#d9cde8] px-5 py-3 text-sm font-semibold text-[#4c008e] hover:bg-[#f5eefb] sm:w-auto sm:py-2.5">Скачать отчёт по ошибкам (Excel)</button>
+              <button onClick={publish} className="w-full rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-amber-600 sm:w-auto sm:py-2.5">{t('Опубликовать обновление')}</button>
+              <button onClick={downloadErrors} className="w-full rounded-full border border-[#d9cde8] px-5 py-3 text-sm font-semibold text-[#4c008e] hover:bg-[#f5eefb] sm:w-auto sm:py-2.5">{t('Скачать отчёт по ошибкам (Excel)')}</button>
             </div>
           </section>
         )}
 
         <section className="rounded-[1.5rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-6">
-          <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">История</div>
-          <h2 className="mb-4 text-xl font-extrabold text-[#320066]">Опубликованные снепшоты</h2>
+          <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('История')}</div>
+          <h2 className="mb-4 text-xl font-extrabold text-[#320066]">{t('Опубликованные снепшоты')}</h2>
           <ul className="space-y-2.5 text-sm">
             {[...state.snapshots].reverse().map((s) => (
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#e9e0f2] bg-[#faf7fd] px-3.5 py-2.5">
                 <span className="text-[#2b2433]">
-                  <span className="font-semibold">{new Date(s.createdAt).toLocaleString('ru-RU')}</span> — {s.comment}{' '}
-                  {s.id === state.publishedSnapshotId && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">опубликован</span>}
+                  <span className="font-semibold">{new Date(s.createdAt).toLocaleString(locale)}</span> — {s.comment}{' '}
+                  {s.id === state.publishedSnapshotId && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">{t('опубликован')}</span>}
                 </span>
-                <span className="text-[#6b6472]">Активисты: {s.stats.reduce((a, x) => a + x.activistsCount, 0)}</span>
+                <span className="text-[#6b6472]">{t('Активисты:')} {s.stats.reduce((a, x) => a + x.activistsCount, 0)}</span>
               </li>
             ))}
           </ul>
@@ -376,6 +380,7 @@ export default function AdminDashboard() {
 }
 
 function Drop({ title, hint, name, onFile }: { title: string; hint: string; name: string; onFile: (f: File) => void }) {
+  const { t } = useT()
   return (
     <label className="flex cursor-pointer flex-col rounded-2xl border-2 border-dashed border-[#d9cde8] bg-[#faf7fd] p-5 transition hover:border-[#4c008e]/40 hover:bg-[#f5eefb]">
       <span className="mb-1 font-semibold text-[#320066]">{title}</span>
@@ -389,8 +394,8 @@ function Drop({ title, hint, name, onFile }: { title: string; hint: string; name
           if (f) onFile(f)
         }}
       />
-      <span className="mt-auto inline-flex w-fit rounded-full border border-[#d9cde8] bg-white px-3.5 py-2 text-sm font-medium text-[#4c008e]">Выбрать файл</span>
-      {name && <span className="mt-2 text-xs font-medium text-amber-700">Загружено: {name}</span>}
+      <span className="mt-auto inline-flex w-fit rounded-full border border-[#d9cde8] bg-white px-3.5 py-2 text-sm font-medium text-[#4c008e]">{t('Выбрать файл')}</span>
+      {name && <span className="mt-2 text-xs font-medium text-amber-700">{t('Загружено:')} {name}</span>}
     </label>
   )
 }
