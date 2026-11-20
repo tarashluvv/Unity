@@ -113,12 +113,40 @@ export default function AdminDashboard() {
   }
 
   const resetDemo = () => {
+    if (!confirm(t('Сбросить все данные к демо-состоянию? Текущие настройки и снепшоты будут заменены.'))) return
     const fresh = getInitialState()
     setState(fresh)
     setRegionsDraft(fresh.regions)
     saveState(fresh)
     setSummary(null)
     alert(t('Сброшено к демо-данным'))
+  }
+
+  const clearSnapshots = () => {
+    if (!state) return
+    if (!confirm(t('Удалить все снепшоты и начать с чистого состояния? Настройки регионов сохранятся.'))) return
+    const stats = regionsDraft.map((r) => ({
+      regionId: r.id,
+      fgCount: 0,
+      appCount: 0,
+      examCount: 0,
+      activistsCount: 0,
+      rejectedCount: 0,
+      deltaActivists: 0,
+      byCity: r.cities.map((city) => ({ city, fgCount: 0, appCount: 0, examCount: 0, activistsCount: 0, rejectedCount: 0 })),
+    }))
+    const snap: Snapshot = {
+      id: 'snap-empty-' + Date.now(),
+      createdAt: new Date().toISOString(),
+      comment: t('Чистый старт'),
+      stats,
+      records: [],
+    }
+    const next: AppState = { ...state, regions: regionsDraft, snapshots: [snap], publishedSnapshotId: snap.id }
+    setState(next)
+    saveState(next)
+    setSummary(null)
+    alert(t('Снепшоты очищены'))
   }
 
   const downloadErrors = () => {
@@ -360,8 +388,13 @@ export default function AdminDashboard() {
         )}
 
         <section className="rounded-[1.5rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-6">
-          <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('История')}</div>
-          <h2 className="mb-4 text-xl font-extrabold text-[#320066]">{t('Опубликованные снепшоты')}</h2>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('История')}</div>
+              <h2 className="text-xl font-extrabold text-[#320066]">{t('Опубликованные снепшоты')}</h2>
+            </div>
+            <button onClick={clearSnapshots} className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100">{t('Очистить снепшоты')}</button>
+          </div>
           <ul className="space-y-2.5 text-sm">
             {[...state.snapshots].reverse().map((s) => (
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#e9e0f2] bg-[#faf7fd] px-3.5 py-2.5">
