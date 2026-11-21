@@ -63,13 +63,14 @@ function detectStages(r: Row) {
   const camp = pick(r, ['участиенакэмпе', 'участиенакемпе', 'участиенакэмпе(+/-)', 'участиенакэмпе+-', 'кэмп', 'кемп'])
 
   const roleActivist = /активист|лидер|лидэр|координатор/.test(roleRaw)
+  const roleStoronn = /сторонник/.test(roleRaw)
   const rolePretendent = /претендент|кандидат/.test(roleRaw)
   const score = [gk, actions, raid, casePart, camp].filter(hasValue).length
   const campOk = hasValue(camp) && !/^\s*-\s*$/.test(String(camp))
 
   const explicitExam = truthy(exam)
   const passedExam = explicitExam || roleActivist || (campOk && score >= 1) || score >= 3
-  const passedFg = truthy(fg) || hasValue(fg) || hasValue(pick(r, ['idзаявкинафг'])) || hasValue(pick(r, ['дата вступления в движение жа', 'датавступлениявдвижениежа'])) || score > 0 || passedExam || roleActivist || rolePretendent || roleRaw.length > 0
+  const passedFg = truthy(fg) || hasValue(fg) || hasValue(pick(r, ['idзаявкинафг'])) || hasValue(pick(r, ['дата вступления в движение жа', 'датавступлениявдвижениежа'])) || score > 0 || passedExam || roleActivist || rolePretendent || roleStoronn || roleRaw.length > 0
   return { passedFg, passedExam }
 }
 
@@ -160,6 +161,24 @@ function buildCityBreakdown(records: VerifiedRecord[], regionId: string): CityBr
     activistsCount: list.filter((x) => x.status === 'VALID_ACTIVIST').length,
     rejectedCount: list.filter((x) => x.status === 'NOT_IN_APP' || x.status === 'DUPLICATE').length,
   })).sort((a, b) => b.activistsCount - a.activistsCount)
+}
+
+export function summarizeRecords(records: VerifiedRecord[], regions: Region[], prevStats?: RegionStats[]): ReconcileSummary {
+  const stats: RegionStats[] = regions.map((r) => {
+    const rs = records.filter((x) => x.regionId === r.id)
+    const activistsCount = rs.filter((x) => x.status === 'VALID_ACTIVIST').length
+    const examCount = rs.filter((x) => x.status === 'VALID_ACTIVIST' || x.status === 'IN_PROGRESS').length
+    const appCount = rs.filter((x) => x.status !== 'NOT_IN_APP').length
+    const fgCount = rs.length
+    const rejectedCount = rs.filter((x) => x.status === 'NOT_IN_APP' || x.status === 'DUPLICATE').length
+    const prev = prevStats?.find((s) => s.regionId === r.id)?.activistsCount ?? 0
+    return { regionId: r.id, fgCount, appCount, examCount, activistsCount, rejectedCount, deltaActivists: activistsCount - prev, byCity: buildCityBreakdown(records, r.id) }
+  })
+  const nextActivists = stats.reduce((a, s) => a + s.activistsCount, 0)
+  const prevActivists = (prevStats || []).reduce((a, s) => a + s.activistsCount, 0)
+  const rejected = records.filter((r) => r.status === 'NOT_IN_APP' || r.status === 'DUPLICATE').length
+  const unrecognized = records.filter((r) => r.regionId === 'unknown').length
+  return { prevActivists, nextActivists, delta: nextActivists - prevActivists, rejected, unrecognized, records, stats }
 }
 
 export function reconcile(app: AppPerson[], entries: RegionEntry[], regions: Region[], prevStats?: RegionStats[]): ReconcileSummary {

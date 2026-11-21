@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { getInitialState, getPublished, loadState, saveState } from '@/lib/data'
 import { LangToggle, useT } from '@/lib/i18n'
-import { aggregateDirect, parseAppRows, parseRegionRows, reconcile } from '@/lib/matcher'
-import type { AppState, ReconcileSummary, Region, Snapshot } from '@/lib/types'
+import { aggregateDirect, parseAppRows, parseRegionRows, reconcile, summarizeRecords } from '@/lib/matcher'
+import type { AppState, ReconcileSummary, RecordStatus, Region, Snapshot, VerifiedRecord } from '@/lib/types'
 
 function readSheet(file: File): Promise<Record<string, unknown>[]> {
   return new Promise((resolve, reject) => {
@@ -40,6 +40,8 @@ export default function AdminDashboard() {
   const [now, setNow] = useState<number | null>(null)
   const [mode, setMode] = useState<'pair' | 'single'>('single')
   const [publishedFlash, setPublishedFlash] = useState(false)
+  const [recordFilter, setRecordFilter] = useState('')
+  const [recordLimit, setRecordLimit] = useState(100)
 
   useEffect(() => {
     const s = loadState()
@@ -166,6 +168,13 @@ export default function AdminDashboard() {
     XLSX.writeFile(wb, 'errors-for-coordinators.xlsx')
   }
 
+  const updateRecord = (idx: number, patch: Partial<VerifiedRecord>) => {
+    if (!summary) return
+    const records = summary.records.map((r, i) => (i === idx ? { ...r, ...patch } : r))
+    const prevStats = published?.stats
+    setSummary(summarizeRecords(records, regionsDraft, prevStats))
+  }
+
   const sessionElapsedMs = sessionStart && now ? Math.max(0, now - sessionStart) : 0
   const sessionLeftMs = Math.max(0, 5 * 60 * 60 * 1000 - sessionElapsedMs)
   const fmtDur = (ms: number) => {
@@ -176,6 +185,17 @@ export default function AdminDashboard() {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
   }
   const recognizedPct = summary && summary.records.length ? Math.round(((summary.records.length - summary.unrecognized) / summary.records.length) * 100) : 0
+
+  const filteredRecords = summary
+    ? summary.records
+        .map((r, idx) => ({ r, idx }))
+        .filter(({ r }) => {
+          const q = recordFilter.trim().toLowerCase()
+          if (!q) return true
+          const reg = regionsDraft.find((x) => x.id === r.regionId)?.name || r.regionId
+          return [r.fullName, reg, r.city, r.status, r.rejectReason || ''].some((v) => v.toLowerCase().includes(q))
+        })
+    : []
 
   return (
     <main className="relative min-h-screen bg-[#faf7fd] pb-20">
@@ -383,6 +403,95 @@ export default function AdminDashboard() {
               />
               <button onClick={publish} className="w-full rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-amber-600 sm:w-auto sm:py-2.5">{t('Опубликовать обновление')}</button>
               <button onClick={downloadErrors} className="w-full rounded-full border border-[#d9cde8] px-5 py-3 text-sm font-semibold text-[#4c008e] hover:bg-[#f5eefb] sm:w-auto sm:py-2.5">{t('Скачать отчёт по ошибкам (Excel)')}</button>
+            </div>
+
+            <div className="mt-6 border-t border-[#e9e0f2] pt-5">
+              <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-extrabold text-[#320066]">{t('Записи людей')}</h3>
+                  <p className="text-sm text-[#6b6472]">{t('Можно изменить ФИО, регион, город, статус или причину перед публикацией.')}</p>
+                </div>
+                <input
+                  value={recordFilter}
+                  onChange={(e) => { setRecordFilter(e.target.value); setRecordLimit(100) }}
+                  placeholder={t('Поиск по ФИО / региону / городу')}
+                  className="w-full rounded-xl border border-[#e9e0f2] px-3.5 py-2.5 text-sm outline-none focus:border-[#ffa400]/50 focus:ring-4 focus:ring-[#ffa400]/10 sm:w-80"
+                />
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[980px] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-[#e9e0f2] text-xs uppercase tracking-wide text-[#6b6472]">
+                      <th className="py-2 pr-3">{t('ФИО')}</th>
+                      <th className="py-2 pr-3">{t('Регион')}</th>
+                      <th className="py-2 pr-3">{t('Город')}</th>
+                      <th className="py-2 pr-3">{t('Статус')}</th>
+                      <th className="py-2">{t('Причина')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRecords.slice(0, recordLimit).map(({ r, idx }) => (
+                        <tr key={r.personKey + '-' + idx} className="border-b border-[#f1ebf7] align-top">
+                          <td className="py-2 pr-3">
+                            <input
+                              value={r.fullName}
+                              onChange={(e) => updateRecord(idx, { fullName: e.target.value })}
+                              className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                            />
+                          </td>
+                          <td className="py-2 pr-3">
+                            <select
+                              value={r.regionId}
+                              onChange={(e) => updateRecord(idx, { regionId: e.target.value })}
+                              className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                            >
+                              <option value="unknown">{t('Не распознан')}</option>
+                              {regionsDraft.map((reg) => <option key={reg.id} value={reg.id}>{reg.name}</option>)}
+                            </select>
+                          </td>
+                          <td className="py-2 pr-3">
+                            <input
+                              value={r.city}
+                              onChange={(e) => updateRecord(idx, { city: e.target.value })}
+                              className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                            />
+                          </td>
+                          <td className="py-2 pr-3">
+                            <select
+                              value={r.status}
+                              onChange={(e) => {
+                                const status = e.target.value as RecordStatus
+                                updateRecord(idx, { status, rejectReason: status === 'VALID_ACTIVIST' ? undefined : (r.rejectReason || '') })
+                              }}
+                              className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                            >
+                              <option value="VALID_ACTIVIST">{t('Подтверждённый новичок')}</option>
+                              <option value="IN_PROGRESS">{t('В процессе')}</option>
+                              <option value="NOT_IN_APP">{t('Нет в приложении')}</option>
+                              <option value="DUPLICATE">{t('Дубликат')}</option>
+                            </select>
+                          </td>
+                          <td className="py-2">
+                            <input
+                              value={r.rejectReason || ''}
+                              onChange={(e) => updateRecord(idx, { rejectReason: e.target.value || undefined })}
+                              placeholder={r.status === 'VALID_ACTIVIST' ? '—' : t('Причина')}
+                              className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+              {filteredRecords.length > recordLimit && (
+                <div className="mt-3 flex items-center gap-3">
+                  <button onClick={() => setRecordLimit((n) => n + 100)} className="rounded-full border border-[#d9cde8] px-4 py-2 text-sm font-semibold text-[#4c008e] hover:bg-[#f5eefb]">
+                    {t('Показать ещё')}
+                  </button>
+                  <span className="text-sm text-[#6b6472]">{Math.min(recordLimit, filteredRecords.length)} / {filteredRecords.length}</span>
+                </div>
+              )}
             </div>
           </section>
         )}
