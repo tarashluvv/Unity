@@ -32,16 +32,17 @@ export default function Home() {
   const [showConditions, setShowConditions] = useState(false)
 
   useEffect(() => {
-    setState(loadState())
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'camp-race-state-v5-regions') setState(loadState())
+    let alive = true
+    const refresh = async () => {
+      const s = await loadState()
+      if (alive) setState(s)
     }
-    const onFocus = () => setState(loadState())
-    const interval = window.setInterval(() => setState(loadState()), 5000)
-    window.addEventListener('storage', onStorage)
+    void refresh()
+    const onFocus = () => { void refresh() }
+    const interval = window.setInterval(() => { void refresh() }, 5000)
     window.addEventListener('focus', onFocus)
     return () => {
-      window.removeEventListener('storage', onStorage)
+      alive = false
       window.removeEventListener('focus', onFocus)
       window.clearInterval(interval)
     }

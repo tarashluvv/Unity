@@ -44,9 +44,20 @@ export default function AdminDashboard() {
   const [recordLimit, setRecordLimit] = useState(100)
 
   useEffect(() => {
-    const s = loadState()
-    setState(s)
-    setRegionsDraft(s.regions)
+    let alive = true
+    const load = async () => {
+      try {
+        const s = await loadState()
+        if (!alive) return
+        setState(s)
+        setRegionsDraft(s.regions)
+      } catch {
+        if (!alive) return
+        alert(t('Не удалось загрузить данные с сервера'))
+      }
+    }
+    void load()
+    return () => { alive = false }
   }, [])
 
   useEffect(() => {
@@ -90,7 +101,7 @@ export default function AdminDashboard() {
     setSummary(res)
   }
 
-  const publish = () => {
+  const publish = async () => {
     if (!summary) return
     const snap: Snapshot = {
       id: 'snap-' + Date.now(),
@@ -100,31 +111,43 @@ export default function AdminDashboard() {
       records: summary.records,
     }
     const next: AppState = { ...state, regions: regionsDraft, snapshots: [...state.snapshots, snap], publishedSnapshotId: snap.id }
-    setState(next)
-    saveState(next)
-    setComment('')
-    setPublishedFlash(true)
-    setTimeout(() => setPublishedFlash(false), 3500)
+    try {
+      await saveState(next)
+      setState(next)
+      setComment('')
+      setPublishedFlash(true)
+      setTimeout(() => setPublishedFlash(false), 3500)
+    } catch {
+      alert(t('Не удалось сохранить данные на сервере'))
+    }
   }
 
-  const saveRegions = () => {
+  const saveRegions = async () => {
     const next = { ...state, regions: regionsDraft }
-    setState(next)
-    saveState(next)
-    alert(t('Регионы и пороги сохранены'))
+    try {
+      await saveState(next)
+      setState(next)
+      alert(t('Регионы и пороги сохранены'))
+    } catch {
+      alert(t('Не удалось сохранить данные на сервере'))
+    }
   }
 
-  const resetDemo = () => {
+  const resetDemo = async () => {
     if (!confirm(t('Сбросить все данные к демо-состоянию? Текущие настройки и снепшоты будут заменены.'))) return
     const fresh = getInitialState()
-    setState(fresh)
-    setRegionsDraft(fresh.regions)
-    saveState(fresh)
-    setSummary(null)
-    alert(t('Сброшено к демо-данным'))
+    try {
+      await saveState(fresh)
+      setState(fresh)
+      setRegionsDraft(fresh.regions)
+      setSummary(null)
+      alert(t('Сброшено к демо-данным'))
+    } catch {
+      alert(t('Не удалось сохранить данные на сервере'))
+    }
   }
 
-  const clearSnapshots = () => {
+  const clearSnapshots = async () => {
     if (!state) return
     if (!confirm(t('Удалить все снепшоты и начать с чистого состояния? Настройки регионов сохранятся.'))) return
     const stats = regionsDraft.map((r) => ({
@@ -145,10 +168,14 @@ export default function AdminDashboard() {
       records: [],
     }
     const next: AppState = { ...state, regions: regionsDraft, snapshots: [snap], publishedSnapshotId: snap.id }
-    setState(next)
-    saveState(next)
-    setSummary(null)
-    alert(t('Снепшоты очищены'))
+    try {
+      await saveState(next)
+      setState(next)
+      setSummary(null)
+      alert(t('Снепшоты очищены'))
+    } catch {
+      alert(t('Не удалось сохранить данные на сервере'))
+    }
   }
 
   const downloadErrors = () => {

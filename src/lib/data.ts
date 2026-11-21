@@ -1326,8 +1326,6 @@ export function getInitialState(): AppState {
   return normalizeState({ regions: defaultRegions, snapshots: seedSnapshots, publishedSnapshotId: published?.id || null })
 }
 
-const KEY = 'camp-race-state-v5-regions'
-
 /** Merge differently spelled city labels in previously saved data (e.g. Қызылорда / Кызылорда). */
 function mergeCityBreakdown(items: CityBreakdown[] = []): CityBreakdown[] {
   const merged = new Map<string, CityBreakdown>()
@@ -1359,12 +1357,11 @@ export function normalizeState(parsed: AppState): AppState {
   }
 }
 
-export function loadState(): AppState {
-  if (typeof window === 'undefined') return getInitialState()
+export async function loadState(): Promise<AppState> {
   try {
-    const raw = localStorage.getItem(KEY)
-    if (!raw) return getInitialState()
-    const parsed = JSON.parse(raw) as AppState
+    const res = await fetch('/api/state', { cache: 'no-store' })
+    if (!res.ok) throw new Error(`State load failed: ${res.status}`)
+    const parsed = (await res.json()) as AppState
     if (!parsed.regions || !Array.isArray(parsed.snapshots)) return getInitialState()
     return normalizeState(parsed)
   } catch {
@@ -1372,9 +1369,16 @@ export function loadState(): AppState {
   }
 }
 
-export function saveState(state: AppState) {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(KEY, JSON.stringify(state))
+export async function saveState(state: AppState): Promise<void> {
+  const res = await fetch('/api/state', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(state),
+  })
+  if (!res.ok) {
+    const msg = await res.text().catch(() => '')
+    throw new Error(msg || `State save failed: ${res.status}`)
+  }
 }
 
 export function getPublished(state: AppState): Snapshot | null {
