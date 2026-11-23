@@ -29,7 +29,7 @@ function Card({ title, description, src, color, textColor }: iCardItem) {
           />
           <div className="absolute inset-0 bg-[#320066]/45" />
         </div>
-        <span className="relative z-10 mt-5 text-4xl font-black tracking-tight md:text-6xl" style={{ color: textColor }}>
+        <span className="relative z-10 mt-5 text-4xl text-center font-black tracking-tight md:text-6xl" style={{ color: textColor }}>
           {title}
         </span>
         <div

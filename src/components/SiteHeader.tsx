@@ -28,7 +28,7 @@ export function SiteHeader({ base = '/camp2026' }: { base?: string }) {
         </a>
         <nav className="flex items-center gap-1.5 text-sm sm:gap-2">
           <a href={`${base}#camp`} className="hidden rounded-full px-3 py-2 font-semibold text-[#4c008e]/80 transition hover:bg-[#f5eefb] hover:text-[#4c008e] md:inline">{t('Кэмп')}</a>
-          <a href={`${base}#leaderboard`} className="rounded-full bg-[#ffa400] px-3.5 py-2 font-semibold text-white shadow-sm transition hover:bg-[#e69400] sm:px-4">{t('Рейтинг')}</a>
+          <a href={`${base}#leaderboard`} className="rounded-full bg-[#ffa400] px-3.5 py-2 font-semibold text-white shadow-sm transition hover:bg-[#e69400] sm:px-4">{t('Лидерборд')}</a>
           <LangToggle />
         </nav>
       </div>
