@@ -42,6 +42,9 @@ export default function AdminDashboard() {
   const [publishedFlash, setPublishedFlash] = useState(false)
   const [recordFilter, setRecordFilter] = useState('')
   const [recordLimit, setRecordLimit] = useState(100)
+  const [publishedFilter, setPublishedFilter] = useState('')
+  const [publishedLimit, setPublishedLimit] = useState(100)
+  const [publishedDirty, setPublishedDirty] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -202,6 +205,30 @@ export default function AdminDashboard() {
     setSummary(summarizeRecords(records, regionsDraft, prevStats))
   }
 
+  const updatePublishedRecord = (idx: number, patch: Partial<VerifiedRecord>) => {
+    if (!state) return
+    const pubIdx = state.snapshots.findIndex((s) => s.id === state.publishedSnapshotId)
+    if (pubIdx < 0) return
+    const snap = state.snapshots[pubIdx]
+    const records = snap.records.map((r, i) => (i === idx ? { ...r, ...patch } : r))
+    const prevStats = pubIdx > 0 ? state.snapshots[pubIdx - 1].stats : undefined
+    const { stats } = summarizeRecords(records, regionsDraft, prevStats)
+    const nextSnapshots = state.snapshots.map((s, i) => (i === pubIdx ? { ...s, records, stats } : s))
+    setState({ ...state, snapshots: nextSnapshots })
+    setPublishedDirty(true)
+  }
+
+  const savePublishedRecords = async () => {
+    if (!state) return
+    try {
+      await saveState(state)
+      setPublishedDirty(false)
+      alert(t('Сохранено'))
+    } catch {
+      alert(t('Не удалось сохранить данные на сервере'))
+    }
+  }
+
   const sessionElapsedMs = sessionStart && now ? Math.max(0, now - sessionStart) : 0
   const sessionLeftMs = Math.max(0, 5 * 60 * 60 * 1000 - sessionElapsedMs)
   const fmtDur = (ms: number) => {
@@ -223,6 +250,16 @@ export default function AdminDashboard() {
           return [r.fullName, reg, r.city, r.status, r.rejectReason || ''].some((v) => v.toLowerCase().includes(q))
         })
     : []
+
+  const publishedRecords = published?.records || []
+  const filteredPublishedRecords = publishedRecords
+    .map((r, idx) => ({ r, idx }))
+    .filter(({ r }) => {
+      const q = publishedFilter.trim().toLowerCase()
+      if (!q) return true
+      const reg = regionsDraft.find((x) => x.id === r.regionId)?.name || r.regionId
+      return [r.fullName, reg, r.city, r.status, r.rejectReason || ''].some((v) => v.toLowerCase().includes(q))
+    })
 
   return (
     <main className="relative min-h-screen bg-[#faf7fd] pb-20">
@@ -522,6 +559,103 @@ export default function AdminDashboard() {
             </div>
           </section>
         )}
+
+        <section className="rounded-[1.5rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Участники')}</div>
+              <h2 className="text-xl font-extrabold text-[#320066]">{t('Все участники (опубликованный снепшот)')}</h2>
+              <p className="text-sm text-[#6b6472]">
+                {published ? `${publishedRecords.length} ${t('записей')}` : t('Нет опубликованного снепшота')}
+                {publishedDirty && <span className="ml-2 font-semibold text-amber-600">• {t('Есть несохранённые изменения')}</span>}
+              </p>
+            </div>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+              <input
+                value={publishedFilter}
+                onChange={(e) => { setPublishedFilter(e.target.value); setPublishedLimit(100) }}
+                placeholder={t('Поиск по ФИО / региону / городу')}
+                className="w-full rounded-xl border border-[#e9e0f2] px-3.5 py-2.5 text-sm outline-none focus:border-[#ffa400]/50 focus:ring-4 focus:ring-[#ffa400]/10 sm:w-80"
+              />
+              <button onClick={savePublishedRecords} disabled={!publishedDirty} className="rounded-full bg-[#4c008e] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#320066] disabled:cursor-not-allowed disabled:opacity-40">{t('Сохранить')}</button>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[980px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-[#e9e0f2] text-xs uppercase tracking-wide text-[#6b6472]">
+                  <th className="py-2 pr-3">{t('ФИО')}</th>
+                  <th className="py-2 pr-3">{t('Регион')}</th>
+                  <th className="py-2 pr-3">{t('Город')}</th>
+                  <th className="py-2 pr-3">{t('Статус')}</th>
+                  <th className="py-2">{t('Причина')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPublishedRecords.slice(0, publishedLimit).map(({ r, idx }) => (
+                  <tr key={(r.personKey || r.fullName) + '-' + idx} className="border-b border-[#f1ebf7] align-top">
+                    <td className="py-2 pr-3">
+                      <input
+                        value={r.fullName}
+                        onChange={(e) => updatePublishedRecord(idx, { fullName: e.target.value })}
+                        className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                      />
+                    </td>
+                    <td className="py-2 pr-3">
+                      <select
+                        value={r.regionId}
+                        onChange={(e) => updatePublishedRecord(idx, { regionId: e.target.value })}
+                        className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                      >
+                        <option value="unknown">{t('Не распознан')}</option>
+                        {regionsDraft.map((reg) => <option key={reg.id} value={reg.id}>{reg.name}</option>)}
+                      </select>
+                    </td>
+                    <td className="py-2 pr-3">
+                      <input
+                        value={r.city}
+                        onChange={(e) => updatePublishedRecord(idx, { city: e.target.value })}
+                        className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                      />
+                    </td>
+                    <td className="py-2 pr-3">
+                      <select
+                        value={r.status}
+                        onChange={(e) => {
+                          const status = e.target.value as RecordStatus
+                          updatePublishedRecord(idx, { status, rejectReason: status === 'VALID_ACTIVIST' ? undefined : (r.rejectReason || '') })
+                        }}
+                        className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                      >
+                        <option value="VALID_ACTIVIST">{t('Подтверждённый новичок')}</option>
+                        <option value="IN_PROGRESS">{t('В процессе')}</option>
+                        <option value="NOT_IN_APP">{t('Нет в приложении')}</option>
+                        <option value="DUPLICATE">{t('Дубликат')}</option>
+                      </select>
+                    </td>
+                    <td className="py-2">
+                      <input
+                        value={r.rejectReason || ''}
+                        onChange={(e) => updatePublishedRecord(idx, { rejectReason: e.target.value || undefined })}
+                        placeholder={r.status === 'VALID_ACTIVIST' ? '—' : t('Причина')}
+                        className="w-full rounded-lg border border-[#e9e0f2] px-2.5 py-1.5 outline-none focus:border-[#ffa400]/50 focus:ring-2 focus:ring-[#ffa400]/10"
+                      />
+                    </td>
+                  </tr>
+                ))}
+                {filteredPublishedRecords.length === 0 && (
+                  <tr><td colSpan={5} className="py-4 text-sm text-[#6b6472]">{publishedRecords.length ? t('Ничего не найдено') : t('Нет записей')}</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          {filteredPublishedRecords.length > publishedLimit && (
+            <div className="mt-3 flex items-center gap-3">
+              <button onClick={() => setPublishedLimit((n) => n + 100)} className="rounded-full border border-[#d9cde8] px-4 py-2 text-sm font-semibold text-[#4c008e] hover:bg-[#f5eefb]">{t('Показать ещё')}</button>
+              <span className="text-sm text-[#6b6472]">{Math.min(publishedLimit, filteredPublishedRecords.length)} / {filteredPublishedRecords.length}</span>
+            </div>
+          )}
+        </section>
 
         <section className="rounded-[1.5rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
