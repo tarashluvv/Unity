@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { LangToggle, useT } from '@/lib/i18n'
 
-export function SiteHeader({ base = '/camp2026' }: { base?: string }) {
+export function SiteHeader({ base = '/camp2027' }: { base?: string }) {
   const { t } = useT()
   const [scrolled, setScrolled] = useState(false)
   const [progress, setProgress] = useState(0)

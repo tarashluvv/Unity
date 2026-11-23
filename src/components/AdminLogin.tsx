@@ -54,7 +54,7 @@ export default function AdminLogin() {
         >
           {busy ? t('Проверка…') : t('Войти')}
         </button>
-        <a href="/camp2026" className="mt-3 block text-center text-sm font-medium text-[#ffa400] hover:underline">
+        <a href="/camp2027" className="mt-3 block text-center text-sm font-medium text-[#ffa400] hover:underline">
           {t('← К дашборду')}
         </a>
       </div>

@@ -279,8 +279,8 @@ export default function AdminDashboard() {
           </div>
           <div className="flex w-full items-center gap-2 text-sm sm:w-auto">
             <LangToggle compact />
-            <a href="/camp2026#share" className="flex-1 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-center font-semibold text-white transition hover:bg-white/20 sm:flex-none sm:py-1.5">{t('Отчёт')}</a>
-            <a href="/camp2026" className="flex-1 rounded-full bg-white px-3.5 py-2 text-center font-semibold text-[#4c008e] transition hover:bg-[#fff1d6] sm:flex-none sm:py-1.5">{t('Дашборд')}</a>
+            <a href="/camp2027#share" className="flex-1 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-center font-semibold text-white transition hover:bg-white/20 sm:flex-none sm:py-1.5">{t('Отчёт')}</a>
+            <a href="/camp2027" className="flex-1 rounded-full bg-white px-3.5 py-2 text-center font-semibold text-[#4c008e] transition hover:bg-[#fff1d6] sm:flex-none sm:py-1.5">{t('Дашборд')}</a>
             <button
               onClick={async () => {
                 await fetch('/api/admin/logout', { method: 'POST' })
