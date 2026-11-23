@@ -86,7 +86,7 @@ export default function Home() {
                 {t('Смотреть лидерборд')} <span className="transition group-hover:translate-x-0.5">→</span>
               </a>
               <div className="flex w-full items-center justify-center gap-2 rounded-full border border-[#e9e0f2] bg-[#faf7fd] px-4 py-2.5 text-sm text-[#5f5768] sm:w-auto sm:justify-start">
-                <span>{t('До 22 декабря 2026:')}</span>
+                <span>{t('До 20 декабря 2026:')}</span>
                 <b className="text-[#320066]">{countdown.ready ? `${countdown.days} д ${countdown.hours} ч` : '—'}</b>
               </div>
             </div>
