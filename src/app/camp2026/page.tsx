@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Leaderboard } from '@/components/Leaderboard'
-import { RegionDetailsModal } from '@/components/RegionDetailsModal'
 import { ShareCardGenerator } from '@/components/ShareCardGenerator'
 import { SiteHeader } from '@/components/SiteHeader'
 import { CountUp } from '@/components/CountUp'
@@ -28,7 +27,6 @@ function useCountdown(target: string) {
 export default function Home() {
   const { t } = useT()
   const [state, setState] = useState<AppState | null>(null)
-  const [selected, setSelected] = useState<string | null>(null)
   const [showConditions, setShowConditions] = useState(false)
 
   useEffect(() => {
@@ -68,8 +66,6 @@ export default function Home() {
     )
   }
 
-  const selectedRegion = regions.find((r) => r.id === selected)
-
   return (
     <main className="relative min-h-screen overflow-x-clip bg-white pb-0 text-[#2b2433]">
       <SiteHeader />
@@ -82,16 +78,12 @@ export default function Home() {
         <div className="relative mx-auto grid w-full max-w-[90%] items-center gap-8 px-4 pb-10 pt-4 sm:px-3 sm:pb-12 sm:pt-8 lg:grid-cols-[1.08fr_.92fr] lg:gap-8 lg:pb-16 lg:pt-10 lg:px-4">
           <div className="relative z-10 animate-fade-up">
             <h1 className="max-w-3xl text-[2.1rem] font-extrabold leading-[1.02] tracking-tight text-[#320066] sm:text-5xl lg:text-[4.1rem]">
-              {t('Путь к Кэмпу:')}
-              <span className="mt-1 block text-[#4c008e]">{t('гонка регионов')}<br />{t('по привлечению')}<br /><span className="text-[#ffa400]">{t('новых Активистов')}</span></span>
+              {t('Путь к Кэмпу')}
             </h1>
 
             <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
               <a href="#leaderboard" className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ffa400] px-6 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-[#ffa400]/20 transition hover:-translate-y-0.5 hover:bg-[#e69400] sm:w-auto">
-                {t('Смотреть рейтинг')} <span className="transition group-hover:translate-x-0.5">→</span>
-              </a>
-              <a href="#camp" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#d9cde8] bg-white px-6 py-3.5 text-sm font-bold text-[#4c008e] shadow-sm transition hover:bg-[#faf7fd] sm:w-auto">
-                {t('Фото из Кэмпов')}
+                {t('Смотреть лидерборд')} <span className="transition group-hover:translate-x-0.5">→</span>
               </a>
               <div className="flex w-full items-center justify-center gap-2 rounded-full border border-[#e9e0f2] bg-[#faf7fd] px-4 py-2.5 text-sm text-[#5f5768] sm:w-auto sm:justify-start">
                 <span>{t('До 22 декабря 2026:')}</span>
@@ -122,12 +114,11 @@ export default function Home() {
       <CampGallery />
 
       <div className="relative z-10 space-y-8 bg-[#320066] pt-8 pb-14 sm:space-y-10 sm:pt-10 sm:pb-16">
-        <Leaderboard regions={regions} stats={snapshot.stats} snapshots={state.snapshots} onSelectRegion={setSelected} />
+        <Leaderboard regions={regions} stats={snapshot.stats} snapshots={state.snapshots} />
 
         <ShareCardGenerator regions={regions} snapshot={snapshot} />
       </div>
 
-      {selectedRegion && <RegionDetailsModal region={selectedRegion} snapshot={snapshot} onClose={() => setSelected(null)} />}
       {showConditions && <ContestConditionsModal onClose={() => setShowConditions(false)} />}
 
       <footer className="border-t border-white/10 bg-[#320066]">
@@ -136,10 +127,7 @@ export default function Home() {
             <div className="text-base font-extrabold text-white">{t('Жаңа адамдар · Гонка регионов')}</div>
             <div className="mt-0.5 text-sm text-white/70">{t('Данные обновляются.')}</div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <a href="#share" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 font-semibold text-white transition hover:bg-white/20">{t('Отчёт для чата')}</a>
-            <span className="rounded-full bg-[#fff1d6] px-4 py-2 text-xs font-bold text-[#ffa400] ring-1 ring-[#ffa400]/10">{regions.length} {t('регионов участвуют в конкурсе')}</span>
-          </div>
+          <img src="/images/logo.svg" alt="Жаңа адамдар. Unity" className="h-9 w-auto shrink-0 transition-transform duration-300 group-hover:scale-[1.02] sm:h-11" />
         </div>
       </footer>
     </main>

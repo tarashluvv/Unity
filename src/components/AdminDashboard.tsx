@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
+import { Leaderboard } from '@/components/Leaderboard'
+import { RegionDetailsModal } from '@/components/RegionDetailsModal'
 import { getInitialState, getPublished, loadState, saveState } from '@/lib/data'
 import { LangToggle, useT } from '@/lib/i18n'
 import { aggregateDirect, parseAppRows, parseRegionRows, reconcile, summarizeRecords } from '@/lib/matcher'
@@ -45,6 +47,7 @@ export default function AdminDashboard() {
   const [publishedFilter, setPublishedFilter] = useState('')
   const [publishedLimit, setPublishedLimit] = useState(100)
   const [publishedDirty, setPublishedDirty] = useState(false)
+  const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -71,6 +74,7 @@ export default function AdminDashboard() {
   }, [sessionStart])
 
   const published = useMemo(() => (state ? getPublished(state) : null), [state])
+  const selectedRegion = useMemo(() => (selectedRegionId ? regionsDraft.find((r) => r.id === selectedRegionId) || null : null), [selectedRegionId, regionsDraft])
 
   if (!state) return <div className="p-8 text-[#4c008e]">{t('Загрузка…')}</div>
 
@@ -317,6 +321,17 @@ export default function AdminDashboard() {
             <Metric label={t('Не распознан регион')} value={summary ? summary.unrecognized : '—'} warn={!!summary && summary.unrecognized > 0} />
           </div>
         </section>
+
+        {published && (
+          <section className="overflow-hidden rounded-[1.5rem] bg-[#320066] py-6 shadow-sm sm:py-8">
+            <Leaderboard
+              regions={regionsDraft}
+              stats={published.stats}
+              snapshots={state.snapshots}
+              onSelectRegion={setSelectedRegionId}
+            />
+          </section>
+        )}
 
         <section className="rounded-[1.5rem] border border-[#e9e0f2] bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -678,6 +693,14 @@ export default function AdminDashboard() {
           </ul>
         </section>
       </div>
+
+      {selectedRegion && published && (
+        <RegionDetailsModal
+          region={selectedRegion}
+          snapshot={published}
+          onClose={() => setSelectedRegionId(null)}
+        />
+      )}
     </main>
   )
 }

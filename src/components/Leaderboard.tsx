@@ -42,10 +42,12 @@ export function Leaderboard({
   regions: Region[]
   stats: RegionStats[]
   snapshots: Snapshot[]
-  onSelectRegion: (id: string) => void
+  onSelectRegion?: (id: string) => void
 }) {
   const { t } = useT()
   const [q, setQ] = useState('')
+  const clickable = !!onSelectRegion
+  const Tag = (clickable ? 'button' : 'div') as 'button' | 'div'
   const rows = useMemo(() => {
     const merged = regions.map((r) => {
       const s = stats.find((x) => x.regionId === r.id)
@@ -69,7 +71,7 @@ export function Leaderboard({
         <div>
           <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Соревнование')}</div>
           <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-4xl">{t('Лидерборд регионов')}</h2>
-          <p className="mt-1 max-w-2xl text-sm text-white/90">{t('Рейтинг регионов по привлечённым новичкам. Нажмите на регион для детализации.')}</p>
+          <p className="mt-1 max-w-2xl text-sm text-white/90">{clickable ? t('Рейтинг регионов по привлечённым новичкам. Нажмите на регион для детализации.') : t('Рейтинг регионов по привлечённым новичкам.')}</p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           <div className="relative w-full sm:w-auto ml-auto">
@@ -87,10 +89,10 @@ export function Leaderboard({
             const isFirst = rank === 1
             const podiumOrder = isFirst ? 'sm:order-2' : rank === 2 ? 'sm:order-1' : 'sm:order-3'
             return (
-              <button
+              <Tag
                 key={row.region.id}
-                onClick={() => onSelectRegion(row.region.id)}
-                className={`relative min-w-[78%] snap-center overflow-hidden rounded-2xl border p-4 text-left transition hover:-translate-y-1 hover:shadow-lg sm:min-w-0 ${podiumOrder} ${isFirst ? 'border-[#ffa400]/35 bg-gradient-to-b from-[#fff1d6] to-white shadow-md ring-1 ring-[#ffa400]/15 sm:-mt-2 sm:pb-6' : rank===2 ? 'border-[#d9cde8] bg-gradient-to-b from-[#faf7fd] to-white' : 'border-[#e9e0f2] bg-white'}`}
+                {...(clickable ? { type: 'button' as const, onClick: () => onSelectRegion?.(row.region.id) } : {})}
+                className={`relative min-w-[78%] snap-center overflow-hidden rounded-2xl border p-4 text-left sm:min-w-0 ${clickable ? 'transition hover:-translate-y-1 hover:shadow-lg' : ''} ${podiumOrder} ${isFirst ? 'border-[#ffa400]/35 bg-gradient-to-b from-[#fff1d6] to-white shadow-md ring-1 ring-[#ffa400]/15 sm:-mt-2 sm:pb-6' : rank===2 ? 'border-[#d9cde8] bg-gradient-to-b from-[#faf7fd] to-white' : 'border-[#e9e0f2] bg-white'}`}
               >
                 <div className="mb-2 flex items-center justify-between">
                   <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xl font-extrabold text-white ${isFirst ? 'bg-[#ffa400]' : rank===2 ? 'bg-[#7c2bb5]' : 'bg-[#4c008e]'}`}>{rank}</span>
@@ -99,7 +101,7 @@ export function Leaderboard({
                 <div className="truncate font-bold text-3xl text-[#320066]">{t(row.region.name)}</div>
                 <div className="mt-1 text-3xl font-extrabold text-[#ffa400]">{(row.stats?.activistsCount || 0).toLocaleString('ru-RU')}</div>
                 <div className="mt-1 text-xs text-[#6b6472]">{row.thresholdPctRaw}% {t('от порога')} · {(row.conv * 100).toFixed(1)}% {t('конверсия')}</div>
-              </button>
+              </Tag>
             )
           })}
         </div>
@@ -111,10 +113,10 @@ export function Leaderboard({
           const isBurst = s && s.deltaActivists > 0 && s.deltaActivists === maxDelta
           const rankTone = idx === 0 ? 'bg-[#ffa400] text-white shadow' : idx === 1 ? 'bg-[#fff1d6] text-[#ffa400]' : idx === 2 ? 'bg-[#f5eefb] text-[#4c008e]' : 'bg-[#faf7fd] text-[#6b6472]'
           return (
-            <button
+            <Tag
               key={row.region.id}
-              onClick={() => onSelectRegion(row.region.id)}
-              className={`group relative overflow-hidden rounded-2xl border p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:p-5 ${idx === 0 ? 'border-[#ffa400]/35 bg-gradient-to-r from-[#ffa400]/70 via-white to-white ring-1 ring-[#ffa400]/10' : 'border-[#e9e0f2] bg-white hover:border-[#ffa400]/25'}`}
+              {...(clickable ? { type: 'button' as const, onClick: () => onSelectRegion?.(row.region.id) } : {})}
+              className={`group relative overflow-hidden rounded-2xl border p-4 text-left shadow-sm sm:p-5 ${clickable ? 'transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl' : ''} ${idx === 0 ? 'border-[#ffa400]/35 bg-gradient-to-r from-[#ffa400]/70 via-white to-white ring-1 ring-[#ffa400]/10' : `border-[#e9e0f2] bg-white ${clickable ? 'hover:border-[#ffa400]/25' : ''}`}`}
               style={{ animation: `rise .5s cubic-bezier(.2,.8,.2,1) ${Math.min(idx, 8) * 40}ms both` }}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
@@ -162,10 +164,10 @@ export function Leaderboard({
                       {(s?.deltaActivists || 0) > 0 ? '↑ +' : (s?.deltaActivists || 0) < 0 ? '↓ ' : '• '}{Math.abs(s?.deltaActivists || 0).toLocaleString('ru-RU')}
                     </div>
                   </div>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fff1d6] text-[#ffa400] transition group-hover:translate-x-1 group-hover:bg-[#ffa400] group-hover:text-white">→</div>
+                  {clickable && <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fff1d6] text-[#ffa400] transition group-hover:translate-x-1 group-hover:bg-[#ffa400] group-hover:text-white">→</div>}
                 </div>
               </div>
-            </button>
+            </Tag>
           )
         })}
       </div>
