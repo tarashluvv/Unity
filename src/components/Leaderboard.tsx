@@ -51,12 +51,11 @@ export function Leaderboard({
   const rows = useMemo(() => {
     const merged = regions.map((r) => {
       const s = stats.find((x) => x.regionId === r.id)
-      const conv = s && s.fgCount > 0 ? s.activistsCount / s.fgCount : 0
       const thresholdPctRaw = s ? Math.round((s.activistsCount / r.minThreshold) * 100) : 0
       const thresholdPct = Math.min(100, thresholdPctRaw)
       const thresholdOk = s ? s.activistsCount >= r.minThreshold : false
       const trend = snapshots.slice(-5).map((sn) => sn.stats.find((x) => x.regionId === r.id)?.activistsCount || 0)
-      return { region: r, stats: s, conv, thresholdPct, thresholdPctRaw, thresholdOk, trend }
+      return { region: r, stats: s, thresholdPct, thresholdPctRaw, thresholdOk, trend }
     }).filter((x) => !q || [x.region.name, t(x.region.name), ...x.region.cities, ...x.region.cities.map((c) => t(c))].some((s) => s.toLowerCase().includes(q.toLowerCase())))
     merged.sort((a, b) => (b.stats?.activistsCount || 0) - (a.stats?.activistsCount || 0))
     return merged
@@ -100,7 +99,7 @@ export function Leaderboard({
                 </div>
                 <div className="truncate font-bold text-3xl text-[#320066]">{t(row.region.name)}</div>
                 <div className="mt-1 text-3xl font-extrabold text-[#ffa400]">{(row.stats?.activistsCount || 0).toLocaleString('ru-RU')}</div>
-                <div className="mt-1 text-xs text-[#6b6472]">{row.thresholdPctRaw}% {t('от порога')} · {(row.conv * 100).toFixed(1)}% {t('конверсия')}</div>
+                <div className="mt-1 text-xs text-[#6b6472]">{row.thresholdPctRaw}% {t('от минимального порога')}</div>
               </Tag>
             )
           })}
@@ -129,8 +128,8 @@ export function Leaderboard({
                       {isBurst && <span className="animate-pulse-glow rounded-full bg-gradient-to-r from-[#4c008e] to-[#ffa400] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">{t('Прорыв')}</span>}
                     </div>
                     <div className="mt-0.5 flex flex-wrap gap-1.5">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.thresholdOk ? 'bg-[#fff1d6] text-[#ffa400]' : 'bg-[#f5eefb] text-[#7c2bb5]'}`}>{row.thresholdOk ? t('Порог достигнут') : t('В гонке')}</span>
-                      <span className="text-xs text-[#6b6472]">{row.region.cities.length} {t('городов · порог')} {row.region.minThreshold}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.thresholdOk ? 'bg-[#fff1d6] text-[#ffa400]' : 'bg-[#f5eefb] text-[#7c2bb5]'}`}>{row.thresholdOk ? t('Минимальный порог достигнут') : t('В гонке')}</span>
+                      <span className="text-xs text-[#6b6472]">{row.region.cities.length} {t('городов · минимальный порог')} {row.region.minThreshold}</span>
                     </div>
                   </div>
                 </div>
@@ -138,10 +137,7 @@ export function Leaderboard({
                 <div className="flex-1 space-y-2">
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span className="font-medium text-[#5f5768]">{t('Новички')} <b className="text-[#ffa400]">{(s?.activistsCount || 0).toLocaleString('ru-RU')}</b> / {row.region.minThreshold.toLocaleString('ru-RU')}</span>
-                    <span className="flex items-center gap-2">
-                      <span className="rounded-full bg-[#fff1d6] px-2 py-0.5 font-bold text-[#ffa400]">{row.thresholdPctRaw}%</span>
-                      <span className="text-[#6b6472]">{t('конверсия')} {(row.conv * 100).toFixed(1)}%</span>
-                    </span>
+                    <span className="rounded-full bg-[#fff1d6] px-2 py-0.5 font-bold text-[#ffa400]">{row.thresholdPctRaw}%</span>
                   </div>
                   <div className="relative h-3.5 overflow-hidden rounded-full bg-[#efe8f6] ring-1 ring-inset ring-[#e9e0f2]">
                     <div className={`h-full rounded-full transition-all duration-700 ${row.thresholdOk ? 'bg-gradient-to-r from-[#ffb52e] to-[#ffa400]' : 'bg-gradient-to-r from-[#7c2bb5] to-[#ffa400]'}`} style={{ width: `${row.thresholdPct}%` }} />

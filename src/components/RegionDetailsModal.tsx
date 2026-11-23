@@ -19,7 +19,6 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
   const max = Math.max(1, steps[0].value)
   const byCity = s?.byCity?.length ? s.byCity : region.cities.map((c) => ({ city: c, fgCount: 0, appCount: 0, examCount: 0, activistsCount: 0, rejectedCount: 0 }))
   const pct = Math.min(100, Math.round(((s?.activistsCount || 0) / Math.max(1, region.minThreshold)) * 100))
-  const conv = s && s.fgCount > 0 ? (s.activistsCount / s.fgCount) * 100 : 0
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-[#320066]/50 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose} role="dialog" aria-modal="true">
@@ -31,7 +30,7 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#4c008e] to-[#ffa400] text-lg font-extrabold text-white shadow-md sm:h-12 sm:w-12">{t(region.name).slice(0,1)}</div>
               <div className="min-w-0">
                 <h3 className="truncate text-lg font-extrabold text-[#320066] sm:text-2xl">{t(region.name)}</h3>
-                <p className="text-xs text-[#6b6472] sm:text-sm">{t('Воронка, прогресс к порогу и вклад городов')} · {region.cities.length} {t('городов')}</p>
+                <p className="text-xs text-[#6b6472] sm:text-sm">{t('Воронка, прогресс к минимальному порогу и вклад городов')} · {region.cities.length} {t('городов')}</p>
               </div>
             </div>
             <button onClick={onClose} className="shrink-0 rounded-full border border-[#e9e0f2] bg-white px-3 py-1.5 text-sm font-semibold text-[#4c008e] transition hover:bg-[#f5eefb] sm:px-3.5">{t('Закрыть')}</button>
@@ -41,7 +40,7 @@ export function RegionDetailsModal({ region, snapshot, onClose }: { region: Regi
         <div className="space-y-5 p-5 sm:p-6">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-3">
             <Metric label={t('Новички')} value={s?.activistsCount || 0} accent />
-            <Metric label={t('Порог')} value={region.minThreshold} />
+            <Metric label={t('Минимальный порог')} value={region.minThreshold} />
             <Metric label={t('Прогресс')} value={`${pct}%`} accent={pct >= 100} />
           </div>
 

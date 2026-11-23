@@ -44,7 +44,7 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
       best ? `🚀 ${t('Прорыв:')} ${best.r.name} (+${best.s!.deltaActivists})` : '',
       '',
       t('Топ-5 регионов:'),
-      ...top5.map((r, i) => `${i + 1}. ${r.r.name} — ${r.s!.activistsCount} ${t('новичков')} (${r.s!.deltaActivists >= 0 ? '+' : ''}${r.s!.deltaActivists}) · ${Math.min(100, Math.round((r.s!.activistsCount / r.r.minThreshold)*100))}% ${t('порога')}`),
+      ...top5.map((r, i) => `${i + 1}. ${r.r.name} — ${r.s!.activistsCount} ${t('новичков')} (${r.s!.deltaActivists >= 0 ? '+' : ''}${r.s!.deltaActivists}) · ${Math.min(100, Math.round((r.s!.activistsCount / r.r.minThreshold)*100))}% ${t('минимального порога')}`),
     ].filter(Boolean)
     await navigator.clipboard.writeText(lines.join('\n'))
     setCopied(true)
@@ -57,7 +57,7 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#ffa400]">{t('Поделиться')}</div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-[#320066]">{t('Готовая сводка для чата')}</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight text-[#320066]">{t('Готовая сводка')}</h2>
             <p className="mt-1 text-sm text-[#6b6472]">{t('Готовая карточка (PNG) и текстовая сводка: новички, которых привлекли Кампусы')}</p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -74,7 +74,7 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
             <div className="relative">
               <div className="mb-5 flex items-start justify-between gap-6">
                 <div>
-                  <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold text-white/90">{t('Жаңа адамдар · гонка регионов')}</div>
+                  <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold text-white/90">{t('Жаңа адамдар')}</div>
                   <h3 className="text-[2rem] font-extrabold leading-[1.05] tracking-tight">{t('Рейтинг регионов')}<br /><span className="text-[#ffd27a]">{t('по новеньким')}</span></h3>
                 </div>
                 <div className="grid gap-2 text-right">
@@ -95,7 +95,7 @@ export function ShareCardGenerator({ regions, snapshot }: { regions: Region[]; s
                         <span className={`flex h-8 w-8 items-center justify-center rounded-xl text-sm font-extrabold ${i===0?'bg-[#ffd27a] text-[#320066]':'bg-white/15 text-white'}`}>{i + 1}</span>
                         <div>
                           <div className="font-bold">{t(r.r.name)}</div>
-                          <div className="text-[11px] text-white/75">{pct}% {t('порога')} · {r.s!.deltaActivists >= 0 ? '+' : ''}{r.s!.deltaActivists} {t('за период')}</div>
+                          <div className="text-[11px] text-white/75">{pct}% {t('минимального порога')} · {r.s!.deltaActivists >= 0 ? '+' : ''}{r.s!.deltaActivists} {t('за период')}</div>
                         </div>
                       </div>
                       <div className="text-right">

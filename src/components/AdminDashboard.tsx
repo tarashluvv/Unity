@@ -134,7 +134,7 @@ export default function AdminDashboard() {
     try {
       await saveState(next)
       setState(next)
-      alert(t('Регионы и пороги сохранены'))
+      alert(t('Регионы и минимальные пороги сохранены'))
     } catch {
       alert(t('Не удалось сохранить данные на сервере'))
     }
@@ -351,7 +351,7 @@ export default function AdminDashboard() {
                   <th className="py-2 pr-3">{t('Регион')}</th>
                   <th className="py-2 pr-3">{t('Города в составе')}</th>
                   <th className="py-2 pr-3">{t('Алиасы (через запятую)')}</th>
-                  <th className="py-2">{t('Мин. порог')}</th>
+                  <th className="py-2">{t('Минимальный порог')}</th>
                 </tr>
               </thead>
               <tbody>
